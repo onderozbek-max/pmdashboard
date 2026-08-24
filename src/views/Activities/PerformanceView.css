@@ -1,0 +1,104 @@
+.perf-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.perf-heading-row { display: flex; flex-direction: column; gap: var(--space-1); }
+.perf-title { font-size: var(--text-xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.perf-sub { font-size: var(--text-sm); color: var(--text-secondary); max-width: 65ch; line-height: var(--leading-relaxed); }
+
+.perf-table-wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.perf-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);
+}
+
+.perf-table thead th {
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.perf-table tbody td, .perf-table tbody th {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.perf-table tbody tr:last-child td,
+.perf-table tbody tr:last-child th { border-bottom: none; }
+
+.perf-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+}
+.sort-btn:hover { color: var(--text-primary); }
+.sort-btn:focus-visible { box-shadow: var(--ring-focus); border-radius: var(--radius-sm); outline: none; }
+
+.perf-type-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.perf-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.perf-rate {
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.perf-rate--high { color: var(--color-positive); }
+.perf-rate--low  { color: var(--color-caution); }
+
+.perf-bar-cell {
+  width: 160px;
+  min-width: 120px;
+}
+
+.perf-bar-bg {
+  height: 8px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.perf-bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s var(--ease-out);
+}
+
+.perf-note {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+}

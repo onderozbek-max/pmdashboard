@@ -1,0 +1,95 @@
+.experiments-page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-8) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.experiments-header {
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.experiments-header__h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+.experiments-header__sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.experiments-tabs {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--bg-inset);
+  border-radius: var(--radius-md);
+  width: fit-content;
+}
+
+.experiments-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+}
+.experiments-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+.experiments-tab--active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-sm);
+}
+.experiments-tab:focus-visible { box-shadow: var(--ring-focus); outline: none; }
+
+.experiments-tab__count {
+  background: var(--bg-inset);
+  border-radius: var(--radius-full);
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+}
+.experiments-tab--active .experiments-tab__count {
+  background: var(--border-default);
+  color: var(--text-primary);
+}
+
+.experiments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.experiments-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.experiments-empty {
+  padding: var(--space-12);
+  text-align: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 768px) {
+  .experiments-page { padding: var(--space-5) var(--space-4) var(--space-12); }
+}

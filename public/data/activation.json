@@ -1,0 +1,41 @@
+{
+  "cohortLabel": "2026-08",
+  "steps": [
+    {
+      "step": "Joined Community",
+      "count": 17614,
+      "conversionFromTop": 1,
+      "conversionFromPrior": 1
+    },
+    {
+      "step": "Completed Join Flow",
+      "count": 14620,
+      "conversionFromTop": 0.83,
+      "conversionFromPrior": 0.83
+    },
+    {
+      "step": "Completed Onboarding",
+      "count": 11801,
+      "conversionFromTop": 0.67,
+      "conversionFromPrior": 0.81
+    },
+    {
+      "step": "First Participation",
+      "count": 9813,
+      "conversionFromTop": 0.557,
+      "conversionFromPrior": 0.832,
+      "medianDaysFromJoin": 4.2
+    },
+    {
+      "step": "First Research Activity",
+      "count": 6673,
+      "conversionFromTop": 0.379,
+      "conversionFromPrior": 0.68
+    }
+  ],
+  "newMembersThisPeriod": 17614,
+  "joinFlowCompletionRate": 0.83,
+  "onboardingCompletionRate": 0.81,
+  "medianDaysToFirstParticipation": 4.2,
+  "firstResearchActivityCompletionRate": 0.68
+}

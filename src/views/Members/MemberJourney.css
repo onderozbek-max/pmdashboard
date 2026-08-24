@@ -1,0 +1,107 @@
+.member-journey {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.member-journey__heading-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.member-journey__title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.member-journey__sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.journey-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.journey-step {
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-step__connector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.journey-step__connector::before {
+  content: '';
+  width: 2px;
+  height: 20px;
+  background: var(--border-default);
+  border-radius: 1px;
+}
+
+.journey-step__connector--warn { color: var(--color-caution); }
+.journey-step__connector--warn::before { background: var(--color-caution); opacity: 0.4; }
+
+.journey-step__conv {
+  font-variant-numeric: tabular-nums;
+}
+
+.journey-step__card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.journey-step__meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.journey-step__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.journey-step__count {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.journey-step__pct-top {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--weight-medium);
+}
+
+.journey-step__bar-bg {
+  height: 6px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.journey-step__bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s var(--ease-out);
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "source": "synthetic",
+  "dataThrough": "2026-08-21",
+  "generatedAt": "2026-08-24T00:00:00.000Z",
+  "freshnessThresholdHours": 72,
+  "currentPeriodLabel": "vs. last month",
+  "priorPeriodLabel": "Prior month",
+  "targets": {
+    "monthlyActiveMembers": {
+      "value": 95000,
+      "byDate": "2026-12-31"
+    },
+    "newMemberActivationRate": {
+      "value": 0.72,
+      "byDate": "2026-12-31"
+    },
+    "highlyEngagedMembers": {
+      "value": 22000,
+      "byDate": "2026-12-31"
+    }
+  },
+  "annotations": [
+    {
+      "id": "ann-1",
+      "date": "2025-11-01",
+      "label": "New Activity Types Launch",
+      "category": "launch",
+      "description": "Trivia and Quick Poll formats launched to all members"
+    },
+    {
+      "id": "ann-2",
+      "date": "2026-02-01",
+      "label": "Onboarding Redesign",
+      "category": "launch",
+      "description": "Participatory onboarding flow redesigned"
+    },
+    {
+      "id": "ann-3",
+      "date": "2026-05-15",
+      "label": "Q2 Activation Experiment",
+      "category": "experiment",
+      "description": "Activation nudge experiment began"
+    }
+  ]
+}

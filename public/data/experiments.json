@@ -1,0 +1,172 @@
+{
+  "experiments": [
+    {
+      "id": "exp-001",
+      "name": "Personalized Activity Recommendations",
+      "hypothesis": "Showing members activity recommendations based on past completions will increase Monthly Active Members by ≥5% and Repeat Participation Rate by ≥3pp within 30 days.",
+      "status": "live",
+      "rolloutPct": 50,
+      "startDate": "2026-07-15",
+      "endDate": null,
+      "decisionDate": "2026-09-01",
+      "primaryMetric": {
+        "metricKey": "monthlyActiveMembers",
+        "label": "Monthly Active Members",
+        "observedLift": 0.031,
+        "significant": null,
+        "direction": "up"
+      },
+      "secondaryMetrics": [
+        {
+          "metricKey": "repeatParticipationRate",
+          "label": "Repeat Participation Rate",
+          "observedLift": 0.018,
+          "significant": null,
+          "direction": "up"
+        },
+        {
+          "metricKey": "activitiesPerActiveMember",
+          "label": "Activities per Active Member",
+          "observedLift": 0.042,
+          "significant": null,
+          "direction": "up"
+        }
+      ],
+      "guardrailState": "healthy",
+      "maturity": "directional",
+      "decision": null,
+      "exposureN": 38200
+    },
+    {
+      "id": "exp-002",
+      "name": "Activation Nudge — Day 3 Email",
+      "hypothesis": "Sending a personalized \"your first activity is ready\" email on day 3 post-join will increase New Member Activation Rate by ≥8pp in the 14-day window.",
+      "status": "live",
+      "rolloutPct": 100,
+      "startDate": "2026-05-15",
+      "endDate": null,
+      "decisionDate": "2026-09-15",
+      "primaryMetric": {
+        "metricKey": "newMemberActivationRate",
+        "label": "New Member Activation Rate",
+        "observedLift": 0.074,
+        "significant": true,
+        "direction": "up"
+      },
+      "secondaryMetrics": [
+        {
+          "metricKey": "timeToFirstParticipation",
+          "label": "Time to First Participation",
+          "observedLift": -0.21,
+          "significant": true,
+          "direction": "down"
+        }
+      ],
+      "guardrailState": "healthy",
+      "maturity": "decision-ready",
+      "decision": null,
+      "exposureN": 14600
+    },
+    {
+      "id": "exp-003",
+      "name": "Activity Bundle Grouping",
+      "hypothesis": "Presenting complementary activities as a grouped bundle will increase Activities per Active Member without harming completion rates.",
+      "status": "completed",
+      "rolloutPct": 100,
+      "startDate": "2026-03-01",
+      "endDate": "2026-05-31",
+      "decisionDate": "2026-06-01",
+      "primaryMetric": {
+        "metricKey": "activitiesPerActiveMember",
+        "label": "Activities per Active Member",
+        "observedLift": 0.12,
+        "significant": true,
+        "direction": "up"
+      },
+      "secondaryMetrics": [
+        {
+          "metricKey": "completionRateResearch",
+          "label": "Research Survey Completion",
+          "observedLift": -0.02,
+          "significant": false,
+          "direction": "flat"
+        }
+      ],
+      "guardrailState": "healthy",
+      "maturity": "decision-ready",
+      "decision": "ship",
+      "learnings": "Bundled activity grouping increased avg activities per active member by 12% (significant at 95%). No measurable harm to completion quality.",
+      "outcome": "Shipped to 100% of members in June 2026. Activity depth metric tracked as primary KPI going forward.",
+      "exposureN": 72000
+    },
+    {
+      "id": "exp-004",
+      "name": "Supply Visibility Widget — Zero Activities State",
+      "hypothesis": "Showing members a \"new activities coming soon\" message when supply is zero reduces dormancy and improves W2 retention vs. showing nothing.",
+      "status": "planned",
+      "rolloutPct": null,
+      "startDate": "2026-09-10",
+      "endDate": null,
+      "decisionDate": "2026-11-01",
+      "primaryMetric": {
+        "metricKey": "w2Retention",
+        "label": "W2 Participation Retention",
+        "observedLift": null,
+        "significant": null,
+        "direction": null
+      },
+      "secondaryMetrics": [
+        {
+          "metricKey": "repeatParticipationRate",
+          "label": "Repeat Participation Rate",
+          "observedLift": null,
+          "significant": null,
+          "direction": null
+        }
+      ],
+      "guardrailState": "n/a",
+      "maturity": "collecting",
+      "decision": null,
+      "exposureN": null
+    },
+    {
+      "id": "exp-005",
+      "name": "Onboarding Flow Simplification",
+      "hypothesis": "Reducing the onboarding flow from 7 steps to 4 steps will increase Join Flow Completion and Onboarding Completion without harming first-participation quality.",
+      "status": "completed",
+      "rolloutPct": 100,
+      "startDate": "2026-01-15",
+      "endDate": "2026-03-15",
+      "decisionDate": "2026-03-20",
+      "primaryMetric": {
+        "metricKey": "joinFlowCompletionRate",
+        "label": "Join Flow Completion",
+        "observedLift": 0.09,
+        "significant": true,
+        "direction": "up"
+      },
+      "secondaryMetrics": [
+        {
+          "metricKey": "onboardingCompletionRate",
+          "label": "Onboarding Completion",
+          "observedLift": 0.14,
+          "significant": true,
+          "direction": "up"
+        },
+        {
+          "metricKey": "newMemberActivationRate",
+          "label": "Activation Rate",
+          "observedLift": 0.06,
+          "significant": true,
+          "direction": "up"
+        }
+      ],
+      "guardrailState": "healthy",
+      "maturity": "decision-ready",
+      "decision": "ship",
+      "learnings": "Simplifying onboarding from 7 to 4 steps improved completion rates significantly across all three funnel stages. No drop in first-activity quality observed.",
+      "outcome": "Shipped February 2026. New onboarding is now the baseline. This explains the step-change improvement in activation rate observed in the March 2026 cohort.",
+      "exposureN": 22000
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+.experiment-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.experiment-card--live    { border-left: 3px solid var(--color-positive); }
+.experiment-card--planned { border-left: 3px solid var(--text-tertiary); }
+.experiment-card--completed { border-left: 3px solid #3b82f6; }
+
+.experiment-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.experiment-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.experiment-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+.decision-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+.decision--ship     { background: var(--color-positive-muted); color: var(--color-positive); }
+.decision--iterate  { background: var(--color-caution-muted);  color: var(--color-caution); }
+.decision--stop     { background: var(--color-critical-muted); color: var(--color-critical); }
+.decision--continue { background: var(--bg-inset); color: var(--text-secondary); }
+
+.experiment-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.experiment-card__date,
+.experiment-card__decision-date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.experiment-card__block-label {
+  display: block;
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.experiment-card__hypothesis {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.experiment-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  background: var(--bg-inset);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+}
+
+.experiment-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.experiment-card__stat--primary {
+  min-width: 200px;
+}
+
+.experiment-card__stat-label {
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+}
+
+.experiment-card__stat-metric {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.experiment-card__stat-value {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.experiment-card__lift-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.experiment-card__lift {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.experiment-card__lift--up   { color: var(--color-positive); }
+.experiment-card__lift--down { color: var(--color-critical); }
+.experiment-card__lift--flat { color: var(--text-secondary); }
+
+.experiment-card__sig {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.experiment-card__guardrail-detail {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* Secondary metrics */
+.experiment-card__secondary {
+  background: var(--bg-inset);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.experiment-card__secondary-toggle {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.experiment-card__secondary-toggle::-webkit-details-marker { display: none; }
+.experiment-card__secondary[open] .experiment-card__secondary-toggle {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.experiment-card__secondary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  padding: var(--space-4) var(--space-5);
+}
+
+.experiment-card__secondary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 160px;
+}
+
+/* Learnings */
+.experiment-card__learnings {
+  background: #dbeafe;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+}
+[data-theme="dark"] .experiment-card__learnings { background: #1e3a5f; }
+
+.experiment-card__learning-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Decision prompt */
+.experiment-card__decision-prompt {
+  background: var(--color-caution-bg);
+  border: 1px solid var(--color-caution-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-caution);
+}

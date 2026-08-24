@@ -1,0 +1,102 @@
+.mix-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.mix-heading-row { display: flex; flex-direction: column; gap: var(--space-1); }
+.mix-title { font-size: var(--text-xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.mix-sub { font-size: var(--text-sm); color: var(--text-secondary); max-width: 65ch; line-height: var(--leading-relaxed); }
+
+.mix-table {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.mix-table thead th {
+  background: var(--bg-inset);
+  padding: var(--space-3) var(--space-4);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.mix-table td, .mix-table tbody th {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.mix-table tbody tr:last-child td,
+.mix-table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.mix-table__type {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 160px;
+}
+
+.mix-table__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mix-table__bar-cell {
+  min-width: 200px;
+}
+
+.mix-table__bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mix-table__bar {
+  height: 12px;
+  border-radius: var(--radius-full);
+  transition: width 0.5s var(--ease-out);
+  min-width: 2px;
+}
+
+.mix-table__bar--supply {
+  background: var(--chart-muted);
+}
+
+.mix-table__pct {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 40px;
+}
+
+.mix-table__diff {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.mix-table__diff--over  { color: var(--color-positive); }
+.mix-table__diff--under { color: var(--color-caution); }
+
+.mix-note {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+  max-width: 65ch;
+}

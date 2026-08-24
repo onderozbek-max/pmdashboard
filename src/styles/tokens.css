@@ -1,0 +1,217 @@
+/* =========================================================
+   Design Tokens — Member's Mark Community Dashboard
+   =========================================================
+   Single source of truth for all design decisions.
+   All components consume these variables only.
+   ========================================================= */
+
+:root {
+  /* --- Color Palette --- */
+  --color-brand-primary: #0057a8;     /* MMC blue */
+  --color-brand-accent:  #005dc7;
+
+  /* Neutral scale */
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-150: #eaecf0;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  /* Status — always paired with icons/labels, never color alone */
+  --color-positive:       #16a34a;
+  --color-positive-bg:    #f0fdf4;
+  --color-positive-muted: #dcfce7;
+  --color-caution:        #d97706;
+  --color-caution-bg:     #fffbeb;
+  --color-caution-muted:  #fef3c7;
+  --color-critical:       #dc2626;
+  --color-critical-bg:    #fef2f2;
+  --color-critical-muted: #fee2e2;
+  --color-neutral:        #6b7280;
+  --color-neutral-bg:     #f9fafb;
+
+  /* Synthetic banner */
+  --color-synthetic:       #ea580c;
+  --color-synthetic-bg:    #fff7ed;
+  --color-synthetic-muted: #fed7aa;
+
+  /* --- Semantic tokens (light theme) --- */
+  --bg-app:        #f8f9fc;
+  --bg-surface:    #ffffff;
+  --bg-elevated:   #ffffff;
+  --bg-inset:      #f3f4f6;
+  --bg-hover:      #f1f5f9;
+  --bg-active:     #e8edf5;
+
+  --border-subtle:   rgba(0, 0, 0, 0.07);
+  --border-default:  rgba(0, 0, 0, 0.11);
+  --border-strong:   rgba(0, 0, 0, 0.18);
+
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary:  #94a3b8;
+  --text-disabled:  #cbd5e1;
+  --text-inverse:   #ffffff;
+  --text-brand:     var(--color-brand-primary);
+  --text-link:      var(--color-brand-accent);
+
+  --ring-focus: 0 0 0 2px #ffffff, 0 0 0 4px var(--color-brand-primary);
+
+  /* --- Typography --- */
+  --font-sans: "Inter var", "Inter", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code",
+               "Menlo", "Monaco", monospace;
+  --font-tabular: "Inter var", "Inter", system-ui, sans-serif;
+
+  /* Scale (rem) */
+  --text-xs:   0.6875rem; /* 11px */
+  --text-sm:   0.8125rem; /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md:   1.0625rem; /* 17px */
+  --text-lg:   1.1875rem; /* 19px */
+  --text-xl:   1.375rem;  /* 22px */
+  --text-2xl:  1.625rem;  /* 26px */
+  --text-3xl:  2rem;      /* 32px */
+  --text-4xl:  2.5rem;    /* 40px */
+  --text-5xl:  3.25rem;   /* 52px */
+
+  /* Weight */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Leading */
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.65;
+
+  /* Tracking */
+  --tracking-tight:  -0.02em;
+  --tracking-snug:   -0.015em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-wider:   0.08em;
+
+  /* --- Spacing --- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* --- Border radius --- */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.06), 0 3px 6px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+
+  /* --- Motion --- */
+  --duration-fast:   100ms;
+  --duration-base:   160ms;
+  --duration-slow:   260ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Layout --- */
+  --nav-width:         220px;
+  --nav-width-compact: 60px;
+  --content-max:       1280px;
+  --header-height:     56px;
+
+  /* --- Chart colors (semantic, order-stable for multi-series) --- */
+  --chart-1: #3b82f6;   /* blue — primary series */
+  --chart-2: #8b5cf6;   /* violet — secondary series */
+  --chart-3: #10b981;   /* emerald */
+  --chart-4: #f59e0b;   /* amber */
+  --chart-5: #ef4444;   /* red */
+  --chart-muted: #cbd5e1;
+}
+
+/* ===================================================
+   Dark theme
+   =================================================== */
+[data-theme="dark"] {
+  --bg-app:      #0c0f14;
+  --bg-surface:  #131820;
+  --bg-elevated: #1a2130;
+  --bg-inset:    #0f141c;
+  --bg-hover:    #1e2736;
+  --bg-active:   #253044;
+
+  --border-subtle:  rgba(255,255,255,0.05);
+  --border-default: rgba(255,255,255,0.09);
+  --border-strong:  rgba(255,255,255,0.15);
+
+  --text-primary:   #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-tertiary:  #64748b;
+  --text-disabled:  #334155;
+  --text-inverse:   #0f172a;
+  --text-brand:     #60a5fa;
+  --text-link:      #93c5fd;
+
+  --ring-focus: 0 0 0 2px #0c0f14, 0 0 0 4px #60a5fa;
+
+  --color-positive:       #22c55e;
+  --color-positive-bg:    #052e16;
+  --color-positive-muted: #14532d;
+  --color-caution:        #f59e0b;
+  --color-caution-bg:     #1c1100;
+  --color-caution-muted:  #451a03;
+  --color-critical:       #f87171;
+  --color-critical-bg:    #1c0606;
+  --color-critical-muted: #450a0a;
+  --color-neutral:        #64748b;
+  --color-neutral-bg:     #131820;
+
+  --color-synthetic:       #f97316;
+  --color-synthetic-bg:    #1a0e05;
+  --color-synthetic-muted: #431407;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.35);
+
+  --chart-1: #60a5fa;
+  --chart-2: #a78bfa;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #f87171;
+  --chart-muted: #334155;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

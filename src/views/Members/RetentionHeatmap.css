@@ -1,0 +1,132 @@
+.retention-heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.retention-heading-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.retention-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.retention-sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.retention-summary {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.retention-summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  min-width: 160px;
+}
+
+.retention-summary-stat__label {
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+}
+
+.retention-summary-stat__value {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.heatmap-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.heatmap-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-xs);
+  width: 100%;
+  min-width: 600px;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.heatmap-table thead th {
+  background: var(--bg-inset);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.heatmap-cohort-col { width: 120px; }
+.heatmap-size-col   { width: 80px; text-align: right; }
+.heatmap-week-col   { width: 72px; text-align: center; }
+
+.heatmap-cohort-label {
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.heatmap-size {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-tertiary);
+}
+
+.heatmap-cell {
+  text-align: center;
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  transition: background 0.2s;
+  border-radius: 2px;
+}
+
+.heatmap-table tbody tr:last-child td,
+.heatmap-table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.heatmap-legend__gradient {
+  width: 100px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, rgba(59,130,246,0.1), rgba(59,130,246,0.95));
+}
+
+.heatmap-legend__null {
+  margin-left: auto;
+}
