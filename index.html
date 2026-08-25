@@ -458,6 +458,35 @@ th{text-align:left}
   .activation-stats{grid-template-columns:1fr 1fr}
   .supply-stats{grid-template-columns:1fr}
 }
+
+/* ── Metric definition tooltips ── */
+.mc-label[data-tip]{cursor:help;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--text-3)}
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:0;background:var(--surface-2);border:1px solid var(--border-md);border-radius:8px;padding:.4rem .7rem;font-size:.6875rem;width:260px;white-space:normal;line-height:1.5;z-index:300;display:none;pointer-events:none;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.12);font-weight:400}
+[data-tip]:hover::after{display:block}
+
+/* ── Executive brief ── */
+.brief-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem}
+.brief-label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:.625rem}
+.brief-bullets{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin:0;padding:0}
+.brief-bullets li{font-size:.8125rem;line-height:1.5;color:var(--text);padding-left:1.25rem;position:relative}
+.brief-bullets li::before{content:'·';position:absolute;left:.25rem;color:var(--text-3);font-weight:700}
+.brief-bullets li.crit::before{content:'⚠';color:var(--red)}
+.brief-bullets li.pos::before{content:'↑';color:var(--emerald)}
+.brief-bullets li.warn::before{content:'△';color:var(--amber)}
+
+/* ── Forecast projection ── */
+.forecast-proj{font-size:.6875rem;margin-top:.375rem;padding:.25rem 0 0}
+.forecast-proj.on-track{color:var(--emerald)}
+.forecast-proj.off-track{color:var(--amber)}
+
+/* ── Chart captions ── */
+.chart-caption{font-size:.6875rem;color:var(--text-3);margin-top:.625rem;line-height:1.5;padding:0 .125rem}
+.chart-caption strong{color:var(--text-2)}
+
+/* ── Section context notes ── */
+.ctx-note{font-size:.75rem;color:var(--text-2);background:var(--surface-2);border-radius:8px;padding:.625rem .875rem;margin-top:.875rem;line-height:1.5;border-left:3px solid var(--border-md)}
+.ctx-note strong{color:var(--text)}
 </style>
 </head>
 <body>
@@ -619,6 +648,78 @@ function getAttention(p0) {
   return items
 }
 
+// ─── Metric definitions (shown as hover tooltips on metric labels) ────────
+const METRIC_TOOLTIPS = {
+  totalMembers: 'All enrolled members where is_active = TRUE. Includes members who have never participated — this is community reach, not activity.',
+  monthlyActiveMembers: 'Distinct members who completed ≥1 non-onboarding activity in the last complete calendar month. Onboarding surveys are excluded.',
+  highlyEngagedMembers: 'Members with ≥5 non-onboarding activity completions in the rolling 30-day window.',
+  newMemberActivationRate: 'Share of members joining in a given month who completed ≥1 research activity within 14 days. Onboarding surveys excluded.',
+  repeatParticipationRate: 'Share of monthly active members (MAU) who completed ≥2 non-onboarding activities in the same month.',
+  activitySupplyCoverage: 'Share of MAU members who currently have ≥1 live activity assigned to them in ASSIGNED or STARTED status.',
+}
+
+// ─── Lifecycle stage definitions ─────────────────────────────────────────
+const STAGE_TOOLTIPS = {
+  'Joined':         'All enrolled members — is_active = TRUE. Includes members who have never done an activity.',
+  'Activated':      'Members who completed Onboarding Survey 1. Required before research activities are unlocked.',
+  'Participated':   'All-time: members who completed ≥1 research or participation activity beyond onboarding.',
+  'Repeated':       'All-time: members who completed ≥2 research activities, demonstrating voluntary return.',
+  'Highly Engaged': 'Current: members with ≥5 non-onboarding completions in the last 30 days (rolling window).',
+}
+
+// ─── Goal trajectory forecast ─────────────────────────────────────────────
+function forecastTarget(snap, target) {
+  if (!target || !snap.history || snap.history.length < 4) return null
+  const reg = linReg(snap.history.map(h => h.value))
+  if (!reg || reg.slope <= 0) return null
+  const remaining = target.value - snap.current
+  if (remaining <= 0) return {status:'achieved', msg:'Goal already reached'}
+  const months = Math.round(remaining / reg.slope)
+  if (months > 36) return null
+  const proj = new Date(); proj.setMonth(proj.getMonth() + months)
+  const goal = new Date(target.byDate + 'T00:00:00')
+  const onTrack = proj <= goal
+  const projStr = proj.toLocaleDateString('en-US', {month:'short', year:'numeric'})
+  return {
+    status: onTrack ? 'on-track' : 'off-track',
+    msg: onTrack
+      ? `On track — projected ${projStr} at current rate`
+      : `Off track — projected ${projStr} vs goal ${target.byDate}`
+  }
+}
+
+// ─── Executive brief ─────────────────────────────────────────────────────
+function generateBrief(data) {
+  const {p0, manifest, supply} = data
+  const bullets = []
+  const mau = p0.monthlyActiveMembers
+  const mauTgt = manifest.targets?.monthlyActiveMembers
+  const mauProg = mauTgt ? fmt.pct(mau.current / mauTgt.value) : null
+  const mauDir = mau.change >= 0 ? 'up' : 'down'
+  bullets.push({
+    text: `MAU is ${fmt.c(mau.current)} — ${mauDir} ${fmt.pct(Math.abs(mau.changePct))} vs last month${mauProg ? `, ${mauProg} toward the ${mauTgt.byDate} goal` : ''}.`,
+    cls: mau.change >= 0 ? 'pos' : 'warn'
+  })
+  const act = p0.newMemberActivationRate
+  const rpt = p0.repeatParticipationRate
+  const he = p0.highlyEngagedMembers
+  if (act.current < 0.45) {
+    bullets.push({text: `Activation is the primary growth constraint: only ${fmt.pct(act.current)} of new members complete their first survey within 14 days — below the 45% threshold where compounding effects kick in.`, cls: 'crit'})
+  } else {
+    bullets.push({text: `${fmt.pct(act.current)} of new members activate within 14 days; ${fmt.pct(rpt.current)} of MAU return for a second activity. ${fmt.c(he.current)} members are highly engaged (${fmt.pct(he.current/Math.max(mau.current,1))} of MAU).`, cls: ''})
+  }
+  const cov = p0.activitySupplyCoverage
+  if (cov.current < 0.80) {
+    const zero = supply?.membersWithZeroAvailable
+    bullets.push({text: `Supply gap: ${fmt.pct(1 - cov.current)} of active members${zero ? ` (${fmt.c(zero)})` : ''} have no eligible activity right now — this is a supply-side constraint that suppresses participation independent of demand.`, cls: 'crit'})
+  } else {
+    const reg = linReg(mau.history.map(h => h.value))
+    const tr = reg ? trendLabel(reg) : 'noisy'
+    bullets.push({text: `Activity supply coverage is healthy at ${fmt.pct(cov.current)}. MAU 18-month trend is ${tr.replace('-',' ')}.`, cls: tr.startsWith('down') ? 'warn' : ''})
+  }
+  return bullets
+}
+
 // ─── SVG Sparkline ────────────────────────────────────────────
 function sparkline(vals, w=72, h=28, color='var(--blue)', target) {
   if(!vals||vals.length<2)return''
@@ -762,7 +863,7 @@ function metricCardHTML({def, snap, target, denomValue, variant='primary', navVi
   return `<article class="metric-card${variant==='subordinate'?' sub':''}${navView?' clickable':''}"
     ${navView?`role="button" tabindex="0" data-nav="${navView}" aria-label="${def.label}: ${valStr}, ${chgStr}"`:''}>
     <div class="mc-header">
-      <span class="mc-label">${def.label}</span>
+      <span class="mc-label" ${def.tooltipKey&&METRIC_TOOLTIPS[def.tooltipKey]?`data-tip="${METRIC_TOOLTIPS[def.tooltipKey]}"`:''}>${def.label}</span>
       ${sparkVals.length>=2 ? sparkline(sparkVals, variant==='subordinate'?56:72, variant==='subordinate'?22:28, sparkColor, target?.value) : ''}
     </div>
     <div class="mc-value tabular" aria-hidden="true">${valStr}</div>
@@ -777,6 +878,7 @@ function metricCardHTML({def, snap, target, denomValue, variant='primary', navVi
         <div class="progress-bar-fill" style="width:${Math.min(progPct*100,100)}%;background:var(--blue)"></div>
       </div>
       <div class="mc-target-label">Target: ${def.unit==='pct'?fmt.pct(target.value):fmt.n(target.value)} by ${target.byDate}</div>
+      ${(()=>{const fc=forecastTarget(snap,target);return fc?`<div class="forecast-proj ${fc.status}">${fc.msg}</div>`:''})()}
     </div>` : ''}
   </article>`
 }
@@ -788,12 +890,12 @@ function renderOverview(data) {
   const isStale = () => { const d=new Date(manifest.generatedAt||manifest.dataThrough), h=(Date.now()-d)/3.6e6; return h>manifest.freshnessThresholdHours }
 
   const defs = {
-    totalMembers:          {label:'Total Members',unit:'count',positiveDir:'up'},
-    monthlyActiveMembers:  {label:'Monthly Active Members',unit:'count',positiveDir:'up',denominator:'Total Members'},
-    highlyEngagedMembers:  {label:'Highly Engaged Members',unit:'count',positiveDir:'up',denominator:'Monthly Active Members'},
-    newMemberActivationRate: {label:'New Member Activation Rate',unit:'pct',positiveDir:'up'},
-    repeatParticipationRate: {label:'Repeat Participation Rate',unit:'pct',positiveDir:'up'},
-    activitySupplyCoverage:  {label:'Activity Supply Coverage',unit:'pct',positiveDir:'up'},
+    totalMembers:            {label:'Total Members',unit:'count',positiveDir:'up',tooltipKey:'totalMembers'},
+    monthlyActiveMembers:    {label:'Monthly Active Members',unit:'count',positiveDir:'up',denominator:'Total Members',tooltipKey:'monthlyActiveMembers'},
+    highlyEngagedMembers:    {label:'Highly Engaged Members',unit:'count',positiveDir:'up',denominator:'Monthly Active Members',tooltipKey:'highlyEngagedMembers'},
+    newMemberActivationRate: {label:'New Member Activation Rate',unit:'pct',positiveDir:'up',tooltipKey:'newMemberActivationRate'},
+    repeatParticipationRate: {label:'Repeat Participation Rate',unit:'pct',positiveDir:'up',tooltipKey:'repeatParticipationRate'},
+    activitySupplyCoverage:  {label:'Activity Supply Coverage',unit:'pct',positiveDir:'up',tooltipKey:'activitySupplyCoverage'},
   }
 
   const insights = generateInsights(data)
@@ -867,6 +969,9 @@ function renderOverview(data) {
       ${isStale()?`<div class="stale-warn" role="alert">⚠ Data is more than ${manifest.freshnessThresholdHours}h old. The batch process may not have run.</div>`:''}
     </header>
 
+    <!-- Executive Brief -->
+    ${(()=>{const b=generateBrief(data);return`<div class="brief-card" role="status" aria-label="Weekly community summary"><div class="brief-label">This period at a glance</div><ul class="brief-bullets">${b.map(bl=>`<li class="${bl.cls}">${bl.text}</li>`).join('')}</ul></div>`})()}
+
     <!-- P0: Community Scale -->
     <section aria-labelledby="health-h">
       <h2 id="health-h" class="section-heading">Product Health</h2>
@@ -927,6 +1032,7 @@ function renderOverview(data) {
           annotations:manifest.annotations||[],
           height:240,
         })}
+        <p class="chart-caption"><strong>MAU</strong> = distinct members completing ≥1 non-onboarding activity per month. <strong>Highly Engaged</strong> = members with ≥5 completions in the rolling 30-day window. Dashed amber line = goal. Vertical markers = product events.</p>
       </div>
     </section>
 
@@ -961,24 +1067,26 @@ function renderMembers(data, activeTab='journey') {
         return `${i>0?`<div class="journey-connector${warn?' warn':''}">${fmt.pct(cv)} retained</div>`:''}
         <div class="journey-card">
           <div class="jc-meta">
-            <span class="jc-label">${s.stage}</span>
+            <span class="jc-label" ${STAGE_TOOLTIPS[s.stage]?`data-tip="${STAGE_TOOLTIPS[s.stage]}"`:''}>${s.stage}</span>
             <span class="jc-count tabular">${fmt.n(s.count)}</span>
             ${i>0?`<span class="jc-pct">${fmt.pct(ct)} of total</span>`:''}
           </div>
           <div class="bar-bg"><div class="bar-fill" style="width:${ct*100}%;background:${i===0?'var(--blue)':i===stages.length-1?'var(--emerald)':'var(--violet)'}"></div></div>
         </div>`}).join('')}
-    </div>`})() : `<div class="section-error">Lifecycle data unavailable</div>`
+    </div>
+    <p class="chart-caption"><strong>Joined → Highly Engaged</strong> is the lifetime activation funnel. Only "Highly Engaged" uses a rolling 30-day window — all other stages are cumulative lifetime milestones. Hover stage labels for exact definitions.</p>`})() : `<div class="section-error">Lifecycle data unavailable</div>`
 
   // Activation
   const activationHtml = activation ? `
     <div class="activation-stats">
       ${[
-        {label:'Join Flow Completion', val:fmt.pct(activation.joinFlowCompletionRate)},
-        {label:'Onboarding Completion', val:fmt.pct(activation.onboardingCompletionRate)},
-        {label:'Median Days to First Activity', val:fmt.d(activation.medianDaysToFirstParticipation)+'d'},
-        {label:'First Research Activity Rate', val:fmt.pct(activation.firstResearchActivityCompletionRate)},
-      ].map(s=>`<div class="act-stat"><div class="as-label">${s.label}</div><div class="as-value tabular">${s.val}</div></div>`).join('')}
+        {label:'Join Flow Completion', val:fmt.pct(activation.joinFlowCompletionRate), tip:'Not available — join_flow table not yet in data schema.'},
+        {label:'Onboarding Completion', val:fmt.pct(activation.onboardingCompletionRate), tip:'Share of new members (last 30 days) who completed Onboarding Survey 1.'},
+        {label:'Median Days to First Survey', val:activation.medianDaysToFirstParticipation!=null?fmt.d(activation.medianDaysToFirstParticipation)+'d':'—', tip:'Median days from join date to first non-onboarding activity completion.'},
+        {label:'First Research Rate', val:fmt.pct(activation.firstResearchActivityCompletionRate), tip:'Share of new members (last 30 days) who completed ≥1 research activity.'},
+      ].map(s=>`<div class="act-stat"><div class="as-label" ${s.tip?`data-tip="${s.tip}"`:''}>${s.label}</div><div class="as-value tabular">${s.val}</div></div>`).join('')}
     </div>
+    <p class="chart-caption" style="margin-top:.5rem">Cohort: members who joined in the last 30 days. Funnel shows sequential conversion for this cohort only — not all-time totals.</p>
     <div class="surface surface-p" style="margin-top:1rem">
       <table class="sr-only" aria-label="Activation funnel"><thead><tr><th>Step</th><th>Members</th><th>From start</th><th>From prior</th></tr></thead>
         <tbody>${activation.steps.map(s=>`<tr><td>${s.step}</td><td>${fmt.n(s.count)}</td><td>${fmt.pct(s.conversionFromTop)}</td><td>${fmt.pct(s.conversionFromPrior)}</td></tr>`).join('')}</tbody>
@@ -1002,7 +1110,8 @@ function renderMembers(data, activeTab='journey') {
   // Retention heatmap
   const retentionHtml = retention ? (() => {
     const cohorts = retention.cohorts.slice(-8)
-    const weeks = ['w1','w2','w4','w8','w12'], wLabels=['W1','W2','W4','W8','W12']
+    const weeks = ['w1','w2','w4','w8','w12']
+    const wLabels = ['W1 (7d)','W2 (14d)','W4 (30d)','W8 (56d)','W12 (84d)']
     const cl = (v) => v===null?'transparent':`rgba(59,130,246,${.1+v*.85})`
     const tc = (v) => v>0.5?'#fff':'var(--text)'
     return `<div style="display:flex;gap:1rem;margin-bottom:1rem">
@@ -1026,8 +1135,9 @@ function renderMembers(data, activeTab='journey') {
         <span>Lower retention</span>
         <div class="hl-gradient"></div>
         <span>Higher retention</span>
-        <span style="margin-left:auto;font-size:.6875rem;color:var(--text-3)">— = not yet available</span>
-      </div>`})() : `<div class="section-error">Retention data unavailable</div>`
+        <span style="margin-left:auto;font-size:.6875rem;color:var(--text-3)">— = window not yet closed</span>
+      </div>
+      <p class="chart-caption"><strong>Retention</strong> = share of a join-month cohort who completed ≥1 non-onboarding activity within N days of joining. W1 = within 7 days, W4 ≈ within 30 days. Medians exclude cohorts whose window hasn't elapsed yet. Day-0 completions (auto-assigned onboarding) are excluded.</p>`})() : `<div class="section-error">Retention data unavailable</div>`
 
   // Depth
   const depthHtml = depth ? (() => {
@@ -1047,7 +1157,7 @@ function renderMembers(data, activeTab='journey') {
           ${b.isHighlyEngaged?'<div class="db-he-tag">Highly Engaged</div>':''}
         </div>`).join('')}
       </div>
-      <p class="depth-note" style="margin-top:.75rem">Highly Engaged threshold: 5+ activities/month (shown in green)</p>`})() : `<div class="section-error">Depth data unavailable</div>`
+      <p class="chart-caption"><strong>Highly Engaged</strong> threshold = 5+ activities/month (shown in green). Distribution counts non-onboarding activities in the last 30 days. Goal: shift members rightward — more members in the 5–9 and 10+ buckets.</p>`})() : `<div class="section-error">Depth data unavailable</div>`
 
   const tabs = [{id:'journey',label:'Member Journey'},{id:'activation',label:'Activation'},{id:'retention',label:'Retention'},{id:'depth',label:'Participation Depth'}]
   const content = {journey:journeyHtml, activation:activationHtml, retention:retentionHtml, depth:depthHtml}
@@ -1129,7 +1239,7 @@ function renderActivities(data, activeTab='supply') {
         </tbody>
       </table>
     </div>
-    <p class="perf-note" style="margin-top:.75rem">Completion rate = completed ÷ assigned. Long surveys = full research studies; Short surveys = screeners.</p>` : `<div class="section-error">Performance data unavailable</div>`
+    <p class="chart-caption" style="margin-top:.75rem"><strong>Completion rate</strong> = member-completions ÷ member-assignments for that type. <strong>Long surveys</strong> = full research studies (type: survey, concept_test). <strong>Short surveys</strong> = screeners (short pre-qualification). <strong>Supply share</strong> vs <strong>completion share</strong> gap: if completion share > supply share, that type is oversubscribed — members want more of it than you're offering.</p>` : `<div class="section-error">Performance data unavailable</div>`
 
   const tabs = [{id:'supply',label:'Activity Supply'},{id:'mix',label:'Activity Mix'},{id:'performance',label:'Performance by Type'}]
   const content = {supply:supplyHtml, mix:mixHtml, performance:perfHtml}
