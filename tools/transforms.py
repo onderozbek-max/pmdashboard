@@ -134,11 +134,17 @@ def make_p0_metrics(data: dict) -> dict:
     }
 
     # ── monthlyActiveMembers ──────────────────────────────────────────────────
-    kpi = data.get("kpi_snapshot") or {}
+    # mmc_business_metrics.active_members = total is_active=TRUE count, not MAU.
+    # Real MAU = distinct assignment completers per month, from engagement_trend.
+    # Use last COMPLETE calendar month only — the current partial month produces a
+    # false MoM drop mid-month (e.g. Aug 25 shows Aug actives << July actives).
     trend = data.get("engagement_trend") or []
+    last_complete = _last_complete_month()           # e.g. "2026-07" on Aug 25
+    complete_trend = [r for r in trend if r.get("month", "") <= last_complete]
 
-    current_mau = _safe_int(kpi.get("mau"))
-    prior_mau = _safe_int(trend[-2]["mau"]) if len(trend) >= 2 else 0
+    current_mau = _safe_int(complete_trend[-1]["mau"]) if complete_trend else 0
+    prior_mau   = _safe_int(complete_trend[-2]["mau"]) if len(complete_trend) >= 2 else 0
+    # History includes the partial current month for the chart (shows trend direction).
     mau_history = [{"date": r["month"], "value": _safe_int(r["mau"])} for r in trend]
 
     out["monthlyActiveMembers"] = {
@@ -151,6 +157,7 @@ def make_p0_metrics(data: dict) -> dict:
     }
 
     # ── highlyEngagedMembers ──────────────────────────────────────────────────
+    kpi = data.get("kpi_snapshot") or {}
     current_he = _safe_int(kpi.get("highly_engaged"))
     prior_he = _safe_int(trend[-2]["highly_engaged"]) if len(trend) >= 2 else 0
     he_history = [{"date": r["month"], "value": _safe_int(r["highly_engaged"])} for r in trend]
@@ -269,17 +276,19 @@ def make_activation(data: dict) -> dict:
     funnel_rows = data.get("activation_funnel_30d") or []
     step_map = {r["step"]: r for r in funnel_rows}
 
-    joined_n     = _safe_int((step_map.get("Joined Community") or {}).get("count"))
-    onboarded_n  = _safe_int((step_map.get("Completed Onboarding") or {}).get("count"))
-    first_part_n = _safe_int((step_map.get("First Participation") or {}).get("count"))
-    first_res_n  = _safe_int((step_map.get("First Research Activity") or {}).get("count"))
-    ttfv_median  = _safe_float((step_map.get("First Participation") or {}).get("median_days"))
+    joined_n    = _safe_int((step_map.get("Joined Community") or {}).get("count"))
+    onboarded_n = _safe_int((step_map.get("Completed Onboarding") or {}).get("count"))
+    first_res_n = _safe_int((step_map.get("First Research Activity") or {}).get("count"))
+    # TTFV comes from research step (days from join to first research completion).
+    # "First Participation (any)" step removed: counting onboarding activities made
+    # it structurally ≥ "Completed Onboarding" — an impossible funnel direction.
+    ttfv_median = _safe_float((step_map.get("First Research Activity") or {}).get("median_days"))
 
     def conv_from_top(n: int) -> float:
         return round(n / joined_n, 4) if joined_n else 0.0
 
-    def conv_from_prior(n: int, prior: int) -> float:
-        return round(n / prior, 4) if prior else 0.0
+    def conv_from_prior(n: int, prior: int) -> float | None:
+        return round(n / prior, 4) if prior else None
 
     steps = [
         {
@@ -289,32 +298,17 @@ def make_activation(data: dict) -> dict:
             "conversionFromPrior": 1.0,
         },
         {
-            # Join flow: no BQ source — data unavailable
-            "step": "Completed Join Flow",
-            "count": None,
-            "conversionFromTop": None,
-            "conversionFromPrior": None,
-            "unavailable": True,
-            "reason": "join_flow table not in schema",
-        },
-        {
             "step": "Completed Onboarding",
             "count": onboarded_n,
             "conversionFromTop": conv_from_top(onboarded_n),
-            "conversionFromPrior": None,  # prior step (join flow) unavailable
-        },
-        {
-            "step": "First Participation",
-            "count": first_part_n,
-            "conversionFromTop": conv_from_top(first_part_n),
-            "conversionFromPrior": conv_from_prior(first_part_n, onboarded_n),
-            "medianDaysFromJoin": round(ttfv_median, 1) if ttfv_median else None,
+            "conversionFromPrior": conv_from_prior(onboarded_n, joined_n),
         },
         {
             "step": "First Research Activity",
             "count": first_res_n,
             "conversionFromTop": conv_from_top(first_res_n),
-            "conversionFromPrior": conv_from_prior(first_res_n, first_part_n),
+            "conversionFromPrior": conv_from_prior(first_res_n, onboarded_n),
+            "medianDaysFromJoin": round(ttfv_median, 1) if ttfv_median else None,
         },
     ]
 
@@ -322,7 +316,7 @@ def make_activation(data: dict) -> dict:
         "cohortLabel":                         _last_complete_month(),
         "steps":                               steps,
         "newMembersThisPeriod":                joined_n,
-        "joinFlowCompletionRate":              None,      # unavailable
+        "joinFlowCompletionRate":              None,      # no join_flow table in schema
         "onboardingCompletionRate":            conv_from_top(onboarded_n),
         "medianDaysToFirstParticipation":      round(ttfv_median, 1) if ttfv_median else None,
         "firstResearchActivityCompletionRate": conv_from_top(first_res_n),
@@ -362,7 +356,40 @@ def make_cohort_retention(data: dict) -> dict:
             val = row.get("retention_pct")
             cohorts[month][week_key] = round(float(val), 4) if val is not None else None
 
-    return {"cohorts": sorted(cohorts.values(), key=lambda c: c["cohortLabel"])}
+    sorted_cohorts = sorted(cohorts.values(), key=lambda c: c["cohortLabel"])
+
+    def _median(vals: list) -> float | None:
+        nums = [v for v in vals if v is not None]
+        if not nums:
+            return None
+        nums.sort()
+        mid = len(nums) // 2
+        return nums[mid] if len(nums) % 2 else round((nums[mid - 1] + nums[mid]) / 2, 4)
+
+    def _cohort_window_closed(label: str, min_days: int) -> bool:
+        """True only if enough days have passed since the end of the cohort month."""
+        try:
+            from calendar import monthrange
+            year, month = map(int, label.split("-"))
+            last_day = monthrange(year, month)[1]
+            cohort_end = date(year, month, last_day)
+            return (date.today() - cohort_end).days >= min_days
+        except Exception:
+            return False
+
+    # Exclude cohorts whose window hasn't closed yet — they produce artificially low
+    # retention values (e.g. an Aug cohort measured on Aug 25 has a low w4 because
+    # the 30-day window hasn't elapsed) that drag down the median.
+    w2_closed = [c for c in sorted_cohorts if _cohort_window_closed(c["cohortLabel"], 14)]
+    w4_closed = [c for c in sorted_cohorts if _cohort_window_closed(c["cohortLabel"], 30)]
+    median_w2 = _median([c["w2"] for c in w2_closed])
+    median_w4 = _median([c["w4"] for c in w4_closed])
+
+    return {
+        "cohorts": sorted_cohorts,
+        "medianW2Retention": median_w2,
+        "medianW4Retention": median_w4,
+    }
 
 
 # ─── participation-depth.json ─────────────────────────────────────────────────

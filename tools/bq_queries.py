@@ -140,13 +140,18 @@ def query_kpi_snapshot(client, project: str, dataset: str) -> dict:
         ORDER BY created_ts DESC LIMIT 1
       ),
       highly_engaged AS (
+        -- Active definition: onboarding completions do NOT count toward engagement depth.
+        -- A member must have 5+ research/participation completions in the last 30 days.
         SELECT COUNT(DISTINCT community_user_id) AS highly_engaged
         FROM (
-          SELECT community_user_id
-          FROM {_t(project, dataset, 'assignment')}
-          WHERE assignment_status = 'COMPLETED'
-            AND user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
-          GROUP BY community_user_id
+          SELECT a.community_user_id
+          FROM {_t(project, dataset, 'assignment')} a
+          JOIN {_t(project, dataset, 'activity_type')} atype
+            ON a.activity_id = atype.activity_id
+          WHERE a.assignment_status = 'COMPLETED'
+            AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+            AND a.user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+          GROUP BY a.community_user_id
           HAVING COUNT(*) >= 5
         )
       )
@@ -164,9 +169,10 @@ def query_engagement_trend(client, project: str, dataset: str, lookback_days: in
     Monthly MAU, highly_engaged, WAU, and member type breakdown.
     Adapted from mmc-dashboard with extended lookback.
 
-    MAU = distinct members with ≥1 COMPLETED assignment in the month.
-    Highly Engaged = members with ≥5 completions in the month.
-    WAU = avg weekly actives within the month.
+    Active definition: onboarding completions are EXCLUDED.
+    MAU = distinct members with ≥1 non-onboarding COMPLETED assignment in the month.
+    Highly Engaged = members with ≥5 non-onboarding completions in the month.
+    WAU = avg weekly actives (non-onboarding) within the month.
     """
     sql = f"""
     WITH
@@ -174,12 +180,16 @@ def query_engagement_trend(client, project: str, dataset: str, lookback_days: in
         SELECT
           cu.community_user_id,
           FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) AS month,
+          -- join_month is from community_user.created_at — unaffected by activity filter
           MIN(FORMAT_DATE('%Y-%m', DATE(cu.created_at))) OVER
             (PARTITION BY cu.community_user_id)            AS join_month
         FROM {_t(project, dataset, 'assignment')} a
         JOIN {_t(project, dataset, 'community_user')} cu
           ON a.community_user_id = cu.community_user_id
+        JOIN {_t(project, dataset, 'activity_type')} atype
+          ON a.activity_id = atype.activity_id
         WHERE a.assignment_status = 'COMPLETED'
+          AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
           AND a.user_completed_ts >=
               TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
         GROUP BY cu.community_user_id, month, cu.created_at
@@ -201,26 +211,32 @@ def query_engagement_trend(client, project: str, dataset: str, lookback_days: in
       ),
       highly_engaged_monthly AS (
         SELECT
-          FORMAT_DATE('%Y-%m', DATE(user_completed_ts)) AS month,
-          community_user_id
-        FROM {_t(project, dataset, 'assignment')}
-        WHERE assignment_status = 'COMPLETED'
-          AND user_completed_ts >=
+          FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) AS month,
+          a.community_user_id
+        FROM {_t(project, dataset, 'assignment')} a
+        JOIN {_t(project, dataset, 'activity_type')} atype
+          ON a.activity_id = atype.activity_id
+        WHERE a.assignment_status = 'COMPLETED'
+          AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+          AND a.user_completed_ts >=
               TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
-        GROUP BY month, community_user_id
+        GROUP BY month, a.community_user_id
         HAVING COUNT(*) >= 5
       ),
       wau_monthly AS (
         SELECT
-          FORMAT_DATE('%Y-%m', DATE(user_completed_ts)) AS month,
+          FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) AS month,
           COUNT(DISTINCT
-            FORMAT_DATE('%Y-%W', DATE(user_completed_ts))
-            || '-' || community_user_id)                  AS week_member_pairs,
+            FORMAT_DATE('%Y-%W', DATE(a.user_completed_ts))
+            || '-' || a.community_user_id)                 AS week_member_pairs,
           COUNT(DISTINCT
-            FORMAT_DATE('%Y-%W', DATE(user_completed_ts))) AS week_count
-        FROM {_t(project, dataset, 'assignment')}
-        WHERE assignment_status = 'COMPLETED'
-          AND user_completed_ts >=
+            FORMAT_DATE('%Y-%W', DATE(a.user_completed_ts))) AS week_count
+        FROM {_t(project, dataset, 'assignment')} a
+        JOIN {_t(project, dataset, 'activity_type')} atype
+          ON a.activity_id = atype.activity_id
+        WHERE a.assignment_status = 'COMPLETED'
+          AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+          AND a.user_completed_ts >=
               TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
         GROUP BY month
       )
@@ -311,15 +327,21 @@ def query_repeat_participation_rate(client, project: str, dataset: str,
     """
     sql = f"""
     WITH monthly_completions AS (
+      -- Exclude onboarding and daily_engagement so auto-completed onboarding
+      -- surveys (2 per user) don't inflate activity_count and push repeat rate
+      -- artificially high (e.g. everyone with 2 onboarding surveys = "repeat").
       SELECT
-        FORMAT_DATE('%Y-%m', DATE(user_completed_ts)) AS month,
-        community_user_id,
+        FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) AS month,
+        a.community_user_id,
         COUNT(*) AS activity_count
-      FROM {_t(project, dataset, 'assignment')}
-      WHERE assignment_status = 'COMPLETED'
-        AND user_completed_ts >=
+      FROM {_t(project, dataset, 'assignment')} a
+      JOIN {_t(project, dataset, 'activity_type')} atype
+        ON a.activity_id = atype.activity_id
+      WHERE a.assignment_status = 'COMPLETED'
+        AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+        AND a.user_completed_ts >=
             TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
-      GROUP BY month, community_user_id
+      GROUP BY month, a.community_user_id
     )
     SELECT
       month,
@@ -445,12 +467,15 @@ def query_member_funnel(client, project: str, dataset: str) -> list:
       highly_engaged AS (
         SELECT COUNT(DISTINCT community_user_id) AS n
         FROM (
-          SELECT community_user_id
-          FROM {_t(project, dataset, 'assignment')}
-          WHERE assignment_status = 'COMPLETED'
-            AND user_completed_ts >=
+          SELECT a.community_user_id
+          FROM {_t(project, dataset, 'assignment')} a
+          JOIN {_t(project, dataset, 'activity_type')} atype
+            ON a.activity_id = atype.activity_id
+          WHERE a.assignment_status = 'COMPLETED'
+            AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+            AND a.user_completed_ts >=
                 TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
-          GROUP BY community_user_id HAVING COUNT(*) >= 5
+          GROUP BY a.community_user_id HAVING COUNT(*) >= 5
         )
       ),
       steps AS (
@@ -506,21 +531,14 @@ def query_activation_funnel_30d(client, project: str, dataset: str) -> list:
         WHERE a.assignment_status = 'COMPLETED'
           AND atype.type = 'onboarding'
       ),
-      -- any_participation: ANY completed assignment (includes onboarding) for TTFV.
-      -- Used for "First Participation" step — broadest definition.
-      any_participation AS (
-        SELECT a.community_user_id,
-          MIN(DATE_DIFF(DATE(a.user_completed_ts), c.join_date, DAY)) AS days_to_first
-        FROM {_t(project, dataset, 'assignment')} a
-        JOIN cohort c ON a.community_user_id = c.community_user_id
-        WHERE a.assignment_status = 'COMPLETED'
-          AND DATE(a.user_completed_ts) >= c.join_date
-        GROUP BY a.community_user_id
-      ),
       -- research: non-onboarding, non-daily-engagement completions.
-      -- Used for "First Research Activity" step — narrower definition.
+      -- This is the canonical "First Research Activity" step.
+      -- Includes days_to_first for TTFV median (days from join to first research).
+      -- Removing the "First Participation (any)" step: it counted onboarding activities,
+      -- making it structurally >= "Completed Onboarding" (29k > 16k) — impossible funnel.
       research AS (
-        SELECT a.community_user_id, COUNT(*) AS cnt
+        SELECT a.community_user_id, COUNT(*) AS cnt,
+          MIN(DATE_DIFF(DATE(a.user_completed_ts), c.join_date, DAY)) AS days_to_first
         FROM {_t(project, dataset, 'assignment')} a
         JOIN {_t(project, dataset, 'activity_type')} atype
           ON a.activity_id = atype.activity_id
@@ -536,15 +554,10 @@ def query_activation_funnel_30d(client, project: str, dataset: str) -> list:
         SELECT 2, 'Completed Onboarding',
           (SELECT COUNT(DISTINCT community_user_id) FROM onboard_comps WHERE seq = 1), NULL
         UNION ALL
-        -- Step 3: any completed activity (broadest activation signal) + TTFV median
-        SELECT 3, 'First Participation',
-          (SELECT COUNT(DISTINCT community_user_id) FROM any_participation),
+        SELECT 3, 'First Research Activity',
+          (SELECT COUNT(DISTINCT community_user_id) FROM research WHERE cnt >= 1),
           (SELECT APPROX_QUANTILES(days_to_first, 100)[OFFSET(50)]
-           FROM any_participation WHERE days_to_first IS NOT NULL)
-        UNION ALL
-        -- Step 4: first research-class activity specifically (narrower than step 3)
-        SELECT 4, 'First Research Activity',
-          (SELECT COUNT(DISTINCT community_user_id) FROM research WHERE cnt >= 1), NULL
+           FROM research WHERE days_to_first IS NOT NULL)
       )
     SELECT step_order, step, n AS count, median_days,
       SAFE_DIVIDE(n, FIRST_VALUE(n) OVER (ORDER BY step_order)) AS conversion_from_top
@@ -624,11 +637,14 @@ def query_participation_depth_buckets(client, project: str, dataset: str) -> lis
     """
     sql = f"""
     WITH monthly_completions AS (
-      SELECT community_user_id, COUNT(*) AS activity_count
-      FROM {_t(project, dataset, 'assignment')}
-      WHERE assignment_status = 'COMPLETED'
-        AND user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
-      GROUP BY community_user_id
+      SELECT a.community_user_id, COUNT(*) AS activity_count
+      FROM {_t(project, dataset, 'assignment')} a
+      JOIN {_t(project, dataset, 'activity_type')} atype
+        ON a.activity_id = atype.activity_id
+      WHERE a.assignment_status = 'COMPLETED'
+        AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+        AND a.user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+      GROUP BY a.community_user_id
     ),
     total AS (SELECT COUNT(*) AS n FROM monthly_completions),
     buckets AS (
@@ -660,11 +676,14 @@ def query_participation_depth_history(client, project: str, dataset: str,
     """Monthly average activities per active member."""
     sql = f"""
     SELECT
-      FORMAT_DATE('%Y-%m', DATE(user_completed_ts)) AS month,
-      SAFE_DIVIDE(COUNT(*), COUNT(DISTINCT community_user_id)) AS avg_activities_per_member
-    FROM {_t(project, dataset, 'assignment')}
-    WHERE assignment_status = 'COMPLETED'
-      AND user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
+      FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) AS month,
+      SAFE_DIVIDE(COUNT(*), COUNT(DISTINCT a.community_user_id)) AS avg_activities_per_member
+    FROM {_t(project, dataset, 'assignment')} a
+    JOIN {_t(project, dataset, 'activity_type')} atype
+      ON a.activity_id = atype.activity_id
+    WHERE a.assignment_status = 'COMPLETED'
+      AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
+      AND a.user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {lookback_days} DAY)
     GROUP BY month
     ORDER BY month
     """
@@ -690,9 +709,10 @@ _ACTIVITY_TYPE_MAP = {
 DASHBOARD_TYPES = [
     {'key': 'research-survey', 'label': 'Research Surveys'},
     {'key': 'ihut',            'label': 'IHUTs'},
-    {'key': 'quick-poll',      'label': 'Quick Polls'},
-    {'key': 'trivia',          'label': 'Trivia'},
     {'key': 'other',           'label': 'Other'},
+    # 'quick-poll' and 'trivia' removed — not yet in schema.
+    # Long vs short survey split requires schema clarification (e.g. activity.points
+    # threshold or a new activity_type.subtype column). Add once confirmed.
 ]
 
 

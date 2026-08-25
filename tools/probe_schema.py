@@ -103,11 +103,57 @@ def probe(project: str, dataset: str) -> bool:
     return True
 
 
+def discover_survey_signal(project: str, dataset: str) -> None:
+    """
+    Print all columns on the 'activity' table to find a long/short survey signal.
+
+    The schema currently has no explicit survey-length field. Candidates:
+      - question_count / num_questions: direct count of survey questions
+      - estimated_minutes / duration_minutes: estimated completion time
+      - points: higher-value surveys may correlate with longer length
+      - title/name: could contain "short" or "screener" keywords
+
+    Once you identify the right column, update _ACTIVITY_TYPE_MAP in
+    bq_queries.py to split 'survey' → 'survey-long' / 'survey-short'
+    based on that field.
+    """
+    from bq_client import _make_bq_client
+
+    client = _make_bq_client(project)
+    sql = f"""
+    SELECT column_name, data_type
+    FROM `{project}.{dataset}.INFORMATION_SCHEMA.COLUMNS`
+    WHERE table_name = 'activity'
+    ORDER BY ordinal_position
+    """
+    print(f"\n📋  Columns on {project}.{dataset}.activity:\n")
+    try:
+        rows = list(client.query(sql).result())
+        for r in rows:
+            flag = ""
+            name = r["column_name"].lower()
+            if any(k in name for k in ("question", "num_q", "item", "length",
+                                        "duration", "minute", "point", "title", "name")):
+                flag = "  ← possible survey-length signal"
+            print(f"  {r['column_name']:<35} {r['data_type']}{flag}")
+        print()
+        print("Update bq_queries.py DASHBOARD_TYPES and _ACTIVITY_TYPE_MAP")
+        print("once you confirm the right column.\n")
+    except Exception as exc:
+        print(f"  ERROR: {exc}\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate BQ column references")
     parser.add_argument("--project", default=cfg.BQ_PROJECT)
     parser.add_argument("--dataset", default=cfg.BQ_DATASET)
+    parser.add_argument("--discover-survey-signal", action="store_true",
+                        help="Print activity table columns to find long/short survey proxy")
     args = parser.parse_args()
+
+    if args.discover_survey_signal:
+        discover_survey_signal(args.project, args.dataset)
+        sys.exit(0)
 
     ok = probe(args.project, args.dataset)
     sys.exit(0 if ok else 1)

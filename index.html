@@ -501,11 +501,11 @@ const p0Fmt = new Intl.NumberFormat('en-US', { style: 'percent', maximumFraction
 const dFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 const fmt = {
-  n: v => nFmt.format(Math.round(v)),
-  c: v => cFmt.format(v),
-  pct: v => pFmt.format(v),
-  pct0: v => p0Fmt.format(v),
-  d: (v,p=1) => p===2 ? new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(v) : dFmt.format(v),
+  n: v => v == null ? '—' : nFmt.format(Math.round(v)),
+  c: v => v == null ? '—' : cFmt.format(v),
+  pct: v => v == null ? '—' : pFmt.format(v),
+  pct0: v => v == null ? '—' : p0Fmt.format(v),
+  d: (v,p=1) => v == null ? '—' : p===2 ? new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(v) : dFmt.format(v),
   chgPct: v => `${v>=0?'+':'−'}${pFmt.format(Math.abs(v))}`,
   date: s => { const d = new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) },
   month: s => { if(/^\d{4}-\d{2}$/.test(s)){const[y,m]=s.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'})} return s },
@@ -984,14 +984,14 @@ function renderMembers(data, activeTab='journey') {
         <tbody>${activation.steps.map(s=>`<tr><td>${s.step}</td><td>${fmt.n(s.count)}</td><td>${fmt.pct(s.conversionFromTop)}</td><td>${fmt.pct(s.conversionFromPrior)}</td></tr>`).join('')}</tbody>
       </table>
       <div class="funnel-steps" aria-hidden="true">
-        ${activation.steps.map((s,i)=>{const maxW=activation.steps[0].count; const warn=i>0&&s.conversionFromPrior<.75
+        ${activation.steps.map((s,i)=>{const maxW=activation.steps[0].count||1; const warn=i>0&&s.conversionFromPrior!=null&&s.conversionFromPrior<.75
           return `<div class="funnel-row">
             <div class="funnel-label-col">
               <span class="fl-name">${s.step}</span>
-              ${s.medianDaysFromJoin!==undefined?`<span class="fl-timing">~${fmt.d(s.medianDaysFromJoin)}d from join</span>`:''}
+              ${s.medianDaysFromJoin!=null?`<span class="fl-timing">~${fmt.d(s.medianDaysFromJoin)}d from join</span>`:''}
             </div>
             <div class="funnel-bar-area">
-              <div class="funnel-bar" style="width:${(s.count/maxW)*100}%;background:${i===activation.steps.length-1?'var(--emerald)':'var(--blue)'}"></div>
+              <div class="funnel-bar" style="width:${s.count!=null?(s.count/maxW)*100:0}%;background:${i===activation.steps.length-1?'var(--emerald)':'var(--blue)'}"></div>
               <span class="funnel-count tabular">${fmt.n(s.count)}</span>
               ${i>0?`<span class="funnel-conv${warn?' warn':''}">${fmt.pct(s.conversionFromPrior)} from prior</span>`:''}
             </div>

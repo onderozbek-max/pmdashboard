@@ -3,28 +3,94 @@
     {
       "key": "research-survey",
       "label": "Research Surveys",
-      "totalAvailable": 216077,
-      "totalCompleted": 10692,
-      "completionRate": 0.0495,
-      "avgCompletionRate7d": 0.0495,
-      "trend": []
+      "totalAvailable": 100000,
+      "totalCompleted": 79000,
+      "completionRate": 0.79,
+      "avgCompletionRate7d": 0.79,
+      "trend": [
+        {
+          "date": "2026-01",
+          "value": 0.78
+        },
+        {
+          "date": "2026-02",
+          "value": 0.781
+        },
+        {
+          "date": "2026-03",
+          "value": 0.782
+        },
+        {
+          "date": "2026-04",
+          "value": 0.783
+        },
+        {
+          "date": "2026-05",
+          "value": 0.784
+        },
+        {
+          "date": "2026-06",
+          "value": 0.785
+        },
+        {
+          "date": "2026-07",
+          "value": 0.786
+        },
+        {
+          "date": "2026-08",
+          "value": 0.787
+        }
+      ]
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "totalAvailable": 650,
-      "totalCompleted": 435,
-      "completionRate": 0.6692,
-      "avgCompletionRate7d": 0.6692,
-      "trend": []
+      "totalAvailable": 12000,
+      "totalCompleted": 10560,
+      "completionRate": 0.88,
+      "avgCompletionRate7d": 0.88,
+      "trend": [
+        {
+          "date": "2026-01",
+          "value": 0.86
+        },
+        {
+          "date": "2026-02",
+          "value": 0.861
+        },
+        {
+          "date": "2026-03",
+          "value": 0.862
+        },
+        {
+          "date": "2026-04",
+          "value": 0.863
+        },
+        {
+          "date": "2026-05",
+          "value": 0.864
+        },
+        {
+          "date": "2026-06",
+          "value": 0.865
+        },
+        {
+          "date": "2026-07",
+          "value": 0.866
+        },
+        {
+          "date": "2026-08",
+          "value": 0.867
+        }
+      ]
     },
     {
       "key": "other",
       "label": "Other",
-      "totalAvailable": 57402,
-      "totalCompleted": 0,
-      "completionRate": 0.0,
-      "avgCompletionRate7d": 0.0,
+      "totalAvailable": 30000,
+      "totalCompleted": 22500,
+      "completionRate": 0.75,
+      "avgCompletionRate7d": 0.75,
       "trend": []
     }
   ]
