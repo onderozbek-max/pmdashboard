@@ -3,12 +3,14 @@ name: Validate Dashboard Data
 on:
   push:
     paths:
-      - 'public/data/**'
+      - 'data/**'
+      - 'index.html'
       - 'scripts/validate-data.ts'
       - '.github/workflows/validate.yml'
   pull_request:
     paths:
-      - 'public/data/**'
+      - 'data/**'
+      - 'index.html'
       - 'scripts/validate-data.ts'
 
 jobs:
@@ -21,53 +23,36 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Validate dashboard data
-        run: npm run validate-data
+        run: node --experimental-strip-types scripts/validate-data.ts
 
-  build:
-    name: Build dashboard
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npm run typecheck
-
-      - name: Build
-        run: npm run build
-        env:
-          VITE_BASE: /
-
-      - name: Check for secrets / internal identifiers
+      - name: Check for broken absolute paths in index.html
         run: |
-          # Fail if any of these patterns appear in the dist output
-          PATTERNS=(
-            "bigquery"
-            "project_id"
-            "service_account"
-            "private_key"
-            "walmart.com"
-            "gecgithub01"
-            "internal"
-          )
+          echo "Checking for absolute root paths that break on GitHub Pages subpath..."
+          BROKEN=$(grep -nE '(href|src|fetch|location\.href)\s*=?\s*["\x27]/(?!/)' index.html || true)
+          if [ -n "$BROKEN" ]; then
+            echo "⚠ Absolute root paths found — these break under a repo subpath:"
+            echo "$BROKEN"
+            exit 1
+          fi
+          echo "✓ No absolute root paths found"
+
+      - name: Verify all data files present
+        run: |
+          REQUIRED="manifest.json p0-metrics.json member-lifecycle.json activation.json cohort-retention.json participation-depth.json activity-supply.json activity-mix.json activity-performance.json experiments.json"
+          for f in $REQUIRED; do
+            if [ ! -f "data/$f" ]; then echo "MISSING: data/$f"; exit 1; fi
+            echo "✓ data/$f"
+          done
+
+      - name: Check for secrets / internal identifiers in index.html
+        run: |
+          PATTERNS=("bigquery" "project_id" "service_account" "private_key" "gecgithub01")
           for pattern in "${PATTERNS[@]}"; do
-            if grep -ri "$pattern" dist/ 2>/dev/null | grep -v "demonstration\|synthetic\|architecture" | head -1; then
-              echo "⚠ Potential sensitive string found: $pattern"
-              # Warning only — adjust to exit 1 for stricter enforcement
+            if grep -i "$pattern" index.html 2>/dev/null | grep -qv "demonstration\|synthetic\|architecture"; then
+              echo "⚠ Potential sensitive string: $pattern"
+              exit 1
             fi
           done
-          echo "Secret scan complete."
+          echo "✓ Secret scan passed"

@@ -10,7 +10,7 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 
-const DATA_DIR = join(process.cwd(), 'public', 'data')
+const DATA_DIR = join(process.cwd(), 'data')
 
 let errors: string[] = []
 let warnings: string[] = []

@@ -7,13 +7,13 @@
  * NEVER introduce real member counts, real metrics, or real business data.
  *
  * Usage: npm run generate-data
- * Output: public/data/*.json
+ * Output: data/*.json  (at repository root — served directly by GitHub Pages)
  */
 
 import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 
-const OUTPUT_DIR = join(process.cwd(), 'public', 'data')
+const OUTPUT_DIR = join(process.cwd(), 'data')
 mkdirSync(OUTPUT_DIR, { recursive: true })
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

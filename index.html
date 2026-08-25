@@ -1,44 +1,1294 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Member's Mark Community — Product Dashboard</title>
-  <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-      display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;
-      background:#f8f9fc;color:#0f172a}
-    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;
-      padding:2.5rem 3rem;max-width:500px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,.05)}
-    h1{font-size:1.25rem;font-weight:600;margin:0 0 .5rem}
-    p{color:#64748b;font-size:.875rem;margin:.5rem 0 1.5rem;line-height:1.6}
-    a.btn{display:inline-block;background:#0057a8;color:#fff;text-decoration:none;
-      padding:.625rem 1.5rem;border-radius:8px;font-size:.875rem;font-weight:600}
-    a.btn:hover{background:#004a90}
-    code{background:#f1f5f9;padding:.125rem .375rem;border-radius:4px;font-size:.8125rem;
-      font-family:"JetBrains Mono","Fira Code",monospace}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Member's Mark Community — Product Dashboard</title>
+<style>
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --brand: #0057a8;
+  --bg-app: #f8f9fc; --bg-surface: #fff; --bg-inset: #f3f4f6; --bg-hover: #f1f5f9;
+  --border: rgba(0,0,0,.07); --border-md: rgba(0,0,0,.11);
+  --text: #0f172a; --text-2: #475569; --text-3: #94a3b8; --text-brand: #0057a8;
+  --green: #16a34a; --green-bg: #f0fdf4; --green-muted: #dcfce7;
+  --amber: #d97706; --amber-bg: #fffbeb; --amber-muted: #fef3c7;
+  --red: #dc2626; --red-bg: #fef2f2; --red-muted: #fee2e2;
+  --orange: #ea580c; --orange-bg: #fff7ed; --orange-muted: #fed7aa;
+  --blue: #3b82f6; --violet: #8b5cf6; --emerald: #10b981;
+  --chart-muted: #cbd5e1;
+  --nav-w: 220px; --radius: 12px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.04);
+  --dur: 150ms; --ease: cubic-bezier(.16,1,.3,1);
+  --font: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+[data-theme="dark"] {
+  --bg-app: #0c0f14; --bg-surface: #131820; --bg-inset: #0f141c; --bg-hover: #1e2736;
+  --border: rgba(255,255,255,.05); --border-md: rgba(255,255,255,.09);
+  --text: #e2e8f0; --text-2: #94a3b8; --text-3: #64748b; --text-brand: #60a5fa;
+  --green: #22c55e; --green-bg: #052e16; --green-muted: #14532d;
+  --amber: #f59e0b; --amber-bg: #1c1100; --amber-muted: #451a03;
+  --red: #f87171; --red-bg: #1c0606; --red-muted: #450a0a;
+  --orange: #f97316; --orange-bg: #1a0e05; --orange-muted: #431407;
+  --blue: #60a5fa; --violet: #a78bfa; --emerald: #34d399;
+  --chart-muted: #334155;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.35);
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);font-size:15px;line-height:1.5;color:var(--text);background:var(--bg-app);
+  -webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1}
+ul,ol{list-style:none}
+a{color:var(--text-brand);text-decoration:underline;text-underline-offset:2px}
+svg{display:block}
+table{border-collapse:collapse;width:100%}
+th{text-align:left}
+.tabular{font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ── Skip link ─────────────────────────────────────────────── */
+.skip-link{position:fixed;top:1rem;left:1rem;z-index:9999;padding:.375rem 1rem;background:var(--brand);color:#fff;
+  font-weight:600;font-size:.8125rem;border-radius:6px;transform:translateY(-200%);
+  transition:transform var(--dur) var(--ease)}
+.skip-link:focus{transform:translateY(0);outline:3px solid #fff;outline-offset:2px}
+:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand);border-radius:4px}
+
+/* ── Synthetic banner ──────────────────────────────────────── */
+#synthetic-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:300;
+  background:var(--orange-bg);border-bottom:1px solid var(--orange-muted);
+  padding:.375rem 1.5rem;text-align:center;font-size:.8125rem;font-weight:500;
+  color:var(--orange);gap:.5rem;align-items:center;justify-content:center}
+#synthetic-banner.visible{display:flex}
+
+/* ── Layout shell ──────────────────────────────────────────── */
+.app-shell{display:flex;min-height:100vh}
+.main-nav{position:fixed;top:0;left:0;bottom:0;width:var(--nav-w);background:var(--bg-surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.main-content{flex:1;margin-left:var(--nav-w)}
+#banner-spacer{height:0;transition:height var(--dur)}
+
+/* ── Nav brand ─────────────────────────────────────────────── */
+.nav-brand{display:flex;align-items:center;gap:.75rem;padding:1.25rem 1rem 1rem;
+  border-bottom:1px solid var(--border);min-height:64px}
+.nav-brand-mark{flex-shrink:0}
+.nav-brand-name{font-size:.8125rem;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.nav-brand-sub{font-size:.6875rem;color:var(--text-3);font-weight:500}
+
+/* ── Nav items ─────────────────────────────────────────────── */
+.nav-list{flex:1;padding:.75rem;display:flex;flex-direction:column;gap:.25rem}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:8px;
+  font-size:.8125rem;font-weight:500;color:var(--text-2);text-decoration:none;cursor:pointer;border:none;
+  background:none;width:100%;transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
+.nav-item:hover{background:var(--bg-hover);color:var(--text)}
+.nav-item.active{background:var(--bg-hover);color:var(--text-brand);font-weight:600}
+.nav-item svg{flex-shrink:0;opacity:.75}
+.nav-item.active svg{opacity:1}
+.nav-footer{padding:.75rem .75rem 1.25rem;border-top:1px solid var(--border)}
+
+/* ── Page container ────────────────────────────────────────── */
+.page{max-width:1280px;margin:0 auto;padding:2rem 2rem 5rem;display:flex;flex-direction:column;gap:2.5rem}
+.page-header{padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.page-title{font-size:1.625rem;font-weight:700;letter-spacing:-.02em}
+.page-subtitle{font-size:.8125rem;color:var(--text-2);margin-top:.25rem}
+.page-header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.header-meta{display:flex;align-items:center;gap:1rem;flex-shrink:0}
+.meta-item{display:flex;flex-direction:column;gap:2px;text-align:right}
+.meta-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.meta-value{font-size:.6875rem;color:var(--text-2);font-weight:500}
+.meta-sep{width:1px;height:28px;background:var(--border)}
+
+/* ── Section heading ───────────────────────────────────────── */
+.section-heading{font-size:.9375rem;font-weight:600;color:var(--text);letter-spacing:-.015em}
+.section-heading-row{display:flex;align-items:baseline;gap:1rem}
+.section-sub{font-size:.8125rem;color:var(--text-3)}
+.section-link{font-size:.8125rem;color:var(--text-brand);text-decoration:none;font-weight:500;margin-left:auto;cursor:pointer}
+
+/* ── Surface card ──────────────────────────────────────────── */
+.surface{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius)}
+.surface-p{padding:1.25rem}
+
+/* ── P0 Groups ─────────────────────────────────────────────── */
+.p0-group{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;
+  display:flex;flex-direction:column;gap:1.25rem}
+.p0-group-header{display:flex;align-items:baseline;gap:.75rem}
+.p0-group-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.p0-group-desc{font-size:.6875rem;color:var(--text-3)}
+
+/* Community Scale: primary + subordinates inline */
+.p0-scale{display:flex;align-items:center;gap:.75rem}
+.p0-scale>.metric-card{flex:1}
+.p0-arrow{flex-shrink:0;color:var(--text-3);opacity:.6}
+/* Participation Engine: 3-col grid */
+.p0-engine{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+
+/* ── Metric card ───────────────────────────────────────────── */
+.metric-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem 1.25rem 1rem;display:flex;flex-direction:column;gap:.75rem}
+.metric-card.sub{background:var(--bg-inset);padding:1rem 1.25rem .75rem}
+.metric-card.clickable{cursor:pointer;transition:box-shadow var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.metric-card.clickable:hover{border-color:var(--border-md);box-shadow:var(--shadow-md)}
+.metric-card.clickable:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand)}
+.mc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+.mc-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.mc-value{font-size:2rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.metric-card.sub .mc-value{font-size:1.625rem}
+.mc-footer{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:.6875rem;font-weight:600;
+  border-radius:999px;padding:2px .5rem}
+.delta.pos{background:var(--green-muted);color:var(--green)}
+.delta.neg{background:var(--red-muted);color:var(--red)}
+.delta.neu{background:var(--bg-inset);color:var(--text-2)}
+.mc-denom{font-size:.6875rem;color:var(--text-3)}
+.mc-progress{display:flex;flex-direction:column;gap:.25rem;margin-top:.125rem}
+.mc-target-label{font-size:.6875rem;color:var(--text-3)}
+.progress-bar-bg{height:4px;background:var(--bg-inset);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.progress-bar-fill{height:100%;border-radius:999px;transition:width .4s var(--ease)}
+
+/* ── Sparkline ─────────────────────────────────────────────── */
+.sparkline{display:block}
+
+/* ── Two-col layout ────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start}
+
+/* ── Insight card ──────────────────────────────────────────── */
+.insights-list{display:flex;flex-direction:column;gap:.75rem}
+.insight-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.5rem;border-left:3px solid var(--border-md)}
+.insight-card.pos{border-left-color:var(--green)}
+.insight-card.caution{border-left-color:var(--amber)}
+.insight-card.critical{border-left-color:var(--red)}
+.insight-card.neutral{border-left-color:var(--border-md)}
+.ic-header{display:flex;align-items:flex-start;gap:.75rem}
+.ic-icon{font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px}
+.insight-card.pos .ic-icon{color:var(--green)}
+.insight-card.caution .ic-icon{color:var(--amber)}
+.insight-card.critical .ic-icon{color:var(--red)}
+.insight-card.neutral .ic-icon{color:var(--text-3)}
+.ic-title{font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.35}
+.ic-body{font-size:.8125rem;color:var(--text-2);line-height:1.65}
+.ic-note{font-size:.6875rem;color:var(--text-3);font-style:italic;line-height:1.5}
+.ic-obs{font-size:10px;color:var(--text-3)}
+.ic-action{align-self:flex-start;font-size:.6875rem;font-weight:600;color:var(--text-brand);
+  background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
+
+/* ── Attention module ──────────────────────────────────────── */
+.attention-module{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.attention-list{display:flex;flex-direction:column;gap:.5rem}
+.attention-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:8px;
+  background:var(--bg-inset);border:1px solid var(--border);border-left:3px solid;cursor:pointer;
+  width:100%;text-align:left;transition:background var(--dur) var(--ease)}
+.attention-item:hover{background:var(--bg-hover)}
+.attention-item.watch{border-left-color:var(--amber)}
+.attention-item.critical{border-left-color:var(--red)}
+.ai-icon{font-size:13px;font-weight:700;width:18px;text-align:center;flex-shrink:0}
+.attention-item.watch .ai-icon{color:var(--amber)}
+.attention-item.critical .ai-icon{color:var(--red)}
+.ai-content{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ai-metric{font-size:.6875rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-note{font-size:10px;color:var(--text-3);line-height:1.3}
+.ai-badge{font-size:10px;padding:1px .5rem;border-radius:999px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.attention-item.watch .ai-badge{background:var(--amber-muted);color:var(--amber)}
+.attention-item.critical .ai-badge{background:var(--red-muted);color:var(--red)}
+.all-healthy{display:flex;align-items:center;gap:1rem;padding:1rem;background:var(--green-bg);border-radius:8px}
+.ah-icon{font-size:20px;color:var(--green);font-weight:700;flex-shrink:0}
+.ah-title{font-size:.8125rem;font-weight:600;color:var(--green)}
+.ah-sub{font-size:.6875rem;color:var(--text-2);margin-top:2px}
+
+/* ── Line chart ────────────────────────────────────────────── */
+.chart-wrap{position:relative;width:100%}
+.chart-svg{display:block;overflow:visible}
+.chart-tooltip{position:absolute;top:16px;transform:translateX(-50%);background:var(--bg-surface);
+  border:1px solid var(--border-md);border-radius:8px;padding:.5rem .75rem;box-shadow:var(--shadow-md);
+  pointer-events:none;z-index:10;min-width:140px;font-size:.6875rem}
+.ct-date{font-weight:600;color:var(--text-2);font-size:11px;margin-bottom:.25rem}
+.ct-row{display:flex;align-items:center;gap:.5rem;padding:1px 0}
+.ct-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ct-label{flex:1;color:var(--text-2)}
+.ct-val{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.chart-legend{display:flex;align-items:center;gap:1.25rem;padding:.5rem 0 0 56px;flex-wrap:wrap}
+.cl-item{display:flex;align-items:center;gap:.5rem;font-size:.6875rem;color:var(--text-2);font-weight:500}
+.cl-line{display:inline-block;width:20px;height:2px;border-radius:1px}
+
+/* ── Range tabs ────────────────────────────────────────────── */
+.range-tabs{display:flex;gap:.25rem;padding:.25rem;background:var(--bg-inset);border-radius:6px;width:fit-content}
+.range-tab{padding:.375rem .75rem;border-radius:4px;font-size:.6875rem;font-weight:500;color:var(--text-2);
+  background:none;border:none;cursor:pointer;transition:background var(--dur) var(--ease)}
+.range-tab:hover{background:var(--bg-hover);color:var(--text)}
+.range-tab.active{background:var(--bg-surface);color:var(--text);font-weight:600;box-shadow:var(--shadow-sm)}
+
+/* ── Exp radar ─────────────────────────────────────────────── */
+.exp-radar{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
+.exp-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;
+  display:flex;flex-direction:column;gap:.75rem;cursor:pointer;
+  transition:box-shadow var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.exp-card:hover{border-color:var(--border-md);box-shadow:var(--shadow-md)}
+.exp-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.exp-title-row{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0}
+.exp-name{font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.35}
+.exp-hyp{font-size:.6875rem;color:var(--text-2);line-height:1.65;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exp-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem 1rem;
+  padding:.75rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.es-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.es-value{font-size:.6875rem;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px}
+.lift-up{color:var(--green)} .lift-down{color:var(--red)} .lift-flat{color:var(--text-2)}
+.exp-decide-ready{font-size:.6875rem;font-weight:500;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:.375rem .75rem}
+[data-theme="dark"] .exp-decide-ready{color:#93c5fd;background:#1e3a5f}
+
+/* ── Chips ─────────────────────────────────────────────────── */
+.chip{display:inline-flex;align-items:center;gap:.25rem;padding:2px .5rem;border-radius:999px;
+  font-size:.6875rem;font-weight:500;white-space:nowrap}
+.chip-live{background:var(--green-muted);color:var(--green)}
+.chip-planned{background:var(--bg-inset);color:var(--text-2)}
+.chip-completed{background:#dbeafe;color:#1d4ed8}
+.chip-neutral{background:var(--bg-inset);color:var(--text-2)}
+.chip-directional{background:var(--amber-muted);color:var(--amber)}
+.chip-decision{background:#dbeafe;color:#1d4ed8}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+[data-theme="dark"] .chip-completed,[data-theme="dark"] .chip-decision{background:#1e3a5f;color:#93c5fd}
+
+/* ── Stale warning ─────────────────────────────────────────── */
+.stale-warn{background:var(--amber-bg);border:1px solid var(--amber-muted);border-radius:8px;
+  padding:.75rem 1rem;display:flex;align-items:center;gap:.5rem;font-size:.8125rem;color:var(--amber)}
+
+/* ── Tab bar ───────────────────────────────────────────────── */
+.tab-bar{display:flex;gap:.25rem;padding:.25rem;background:var(--bg-inset);border-radius:8px;width:fit-content;flex-wrap:wrap}
+.tab-btn{padding:.5rem 1rem;border-radius:4px;font-size:.8125rem;font-weight:500;color:var(--text-2);
+  background:none;border:none;cursor:pointer;white-space:nowrap;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
+.tab-btn:hover{background:var(--bg-hover);color:var(--text)}
+.tab-btn.active{background:var(--bg-surface);color:var(--text);font-weight:600;box-shadow:var(--shadow-sm)}
+.tab-btn:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand);outline:none}
+.tab-count{background:var(--bg-inset);border-radius:999px;padding:1px 6px;font-size:11px;font-weight:600;color:var(--text-3)}
+.tab-btn.active .tab-count{background:var(--border-md);color:var(--text)}
+
+/* ── Members: Journey ──────────────────────────────────────── */
+.journey{display:flex;flex-direction:column;gap:0}
+.journey-connector{display:flex;align-items:center;gap:.75rem;padding:.5rem 1rem;
+  color:var(--text-3);font-size:.6875rem;font-weight:500}
+.journey-connector::before{content:'';width:2px;height:20px;background:var(--border-md);border-radius:1px}
+.journey-connector.warn{color:var(--amber)}
+.journey-connector.warn::before{background:var(--amber);opacity:.4}
+.journey-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.75rem}
+.jc-meta{display:flex;align-items:baseline;gap:1rem}
+.jc-label{font-size:.8125rem;font-weight:600;flex:1}
+.jc-count{font-size:1.625rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.jc-pct{font-size:.6875rem;color:var(--text-3)}
+.bar-bg{height:6px;background:var(--bg-inset);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .5s var(--ease)}
+
+/* ── Activation stats ──────────────────────────────────────── */
+.activation-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.act-stat{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.as-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.as-value{font-size:1.625rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:.5rem}
+
+/* ── Funnel ────────────────────────────────────────────────── */
+.funnel-steps{display:flex;flex-direction:column;gap:1rem}
+.funnel-row{display:flex;align-items:center;gap:1rem}
+.funnel-label-col{width:200px;flex-shrink:0;text-align:right;display:flex;flex-direction:column;gap:2px}
+.fl-name{font-size:.8125rem;font-weight:500;color:var(--text)}
+.fl-timing{font-size:.6875rem;color:var(--text-3)}
+.funnel-bar-area{flex:1;display:flex;align-items:center;gap:.75rem}
+.funnel-bar{height:28px;border-radius:4px;min-width:4px;transition:width .5s var(--ease);flex-shrink:0}
+.funnel-count{font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.funnel-conv{font-size:.6875rem;color:var(--text-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.funnel-conv.warn{color:var(--amber)}
+
+/* ── Heatmap ───────────────────────────────────────────────── */
+.heatmap-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-surface)}
+.heatmap-table{border-collapse:separate;border-spacing:0;font-size:.6875rem;min-width:600px}
+.heatmap-table thead th{background:var(--bg-inset);padding:.5rem .75rem;
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);
+  border-bottom:1px solid var(--border)}
+.heatmap-table td,.heatmap-table tbody th{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.heatmap-table tbody tr:last-child td,.heatmap-table tbody tr:last-child th{border-bottom:none}
+.hm-cohort{font-weight:500;color:var(--text-2);white-space:nowrap}
+.hm-size{font-variant-numeric:tabular-nums;color:var(--text-3);text-align:right}
+.hm-cell{text-align:center;font-weight:600;font-variant-numeric:tabular-nums;border-radius:2px}
+.heatmap-legend{display:flex;align-items:center;gap:.75rem;font-size:.6875rem;color:var(--text-3)}
+.hl-gradient{width:100px;height:10px;border-radius:999px;
+  background:linear-gradient(to right,rgba(59,130,246,.1),rgba(59,130,246,.95))}
+
+/* ── Depth bars ────────────────────────────────────────────── */
+.depth-bars{display:flex;align-items:flex-end;gap:1rem;background:var(--bg-surface);
+  border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+.depth-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.depth-col.engaged{background:var(--green-bg);border-radius:8px;padding:.75rem .5rem}
+.db-count{font-size:.8125rem;font-weight:700;font-variant-numeric:tabular-nums}
+.db-pct{font-size:.6875rem;color:var(--text-3);font-variant-numeric:tabular-nums}
+.db-bar-bg{width:100%;height:200px;display:flex;align-items:flex-end}
+.db-bar{width:100%;border-radius:4px 4px 0 0;transition:height .5s var(--ease);min-height:4px}
+.db-label{font-size:.6875rem;color:var(--text-2);font-weight:500;text-align:center}
+.db-he-tag{font-size:10px;color:var(--green);font-weight:600;text-align:center}
+.depth-note{font-size:.6875rem;color:var(--text-3);font-style:italic}
+
+/* ── Supply view ───────────────────────────────────────────── */
+.supply-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.supply-stat{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.supply-stat.warn{border-color:var(--amber-muted);background:var(--amber-bg)}
+.ss-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.ss-value{font-size:2rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:.5rem 0 .25rem}
+.ss-note{font-size:.6875rem;color:var(--text-2);line-height:1.5}
+.supply-alert{background:var(--amber-bg);border:1px solid var(--amber-muted);border-radius:var(--radius);
+  padding:1rem 1.25rem;font-size:.8125rem;color:var(--amber);line-height:1.65}
+
+/* ── Mix table ─────────────────────────────────────────────── */
+.mix-table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.mix-table{border-collapse:separate;border-spacing:0;font-size:.8125rem}
+.mix-table thead th{background:var(--bg-inset);padding:.75rem 1rem;
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);
+  border-bottom:1px solid var(--border)}
+.mix-table td,.mix-table tbody th{padding:.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.mix-table tbody tr:last-child td,.mix-table tbody tr:last-child th{border-bottom:none}
+.mix-type{display:flex;align-items:center;gap:.5rem;font-weight:500;color:var(--text)}
+.mix-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mix-bar-row{display:flex;align-items:center;gap:.75rem}
+.mix-bar{height:12px;border-radius:999px;transition:width .4s var(--ease);min-width:2px}
+.mix-bar-supply{background:var(--chart-muted)}
+.mix-pct{font-size:.6875rem;color:var(--text-2);font-variant-numeric:tabular-nums;min-width:40px}
+.mix-diff{font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.mix-diff.over{color:var(--green)} .mix-diff.under{color:var(--amber)}
+.mix-note{font-size:.6875rem;color:var(--text-3);font-style:italic;max-width:65ch}
+
+/* ── Performance table ─────────────────────────────────────── */
+.perf-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.perf-table{border-collapse:separate;border-spacing:0;font-size:.8125rem}
+.perf-table thead th{background:var(--bg-inset);border-bottom:1px solid var(--border);padding:.75rem 1rem;text-align:left;white-space:nowrap}
+.sort-btn{background:none;border:none;cursor:pointer;font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-3);display:flex;align-items:center;gap:.25rem;padding:0}
+.sort-btn:hover{color:var(--text)}
+.perf-table td,.perf-table tbody th{padding:.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.perf-table tbody tr:last-child td,.perf-table tbody tr:last-child th{border-bottom:none}
+.perf-table tbody tr:hover{background:var(--bg-hover)}
+.perf-type{font-weight:500;color:var(--text)}
+.perf-num{font-variant-numeric:tabular-nums;color:var(--text-2);text-align:right}
+.perf-rate{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.perf-rate.high{color:var(--green)} .perf-rate.low{color:var(--amber)}
+.perf-bar-cell{width:140px}
+.perf-bar-bg{height:8px;background:var(--bg-inset);border-radius:999px;overflow:hidden}
+.perf-bar-fill{height:100%;border-radius:999px;transition:width .4s var(--ease)}
+.perf-note{font-size:.6875rem;color:var(--text-3);font-style:italic}
+
+/* ── Experiment cards (full page) ──────────────────────────── */
+.exp-list{display:flex;flex-direction:column;gap:1rem}
+.exp-full-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;
+  display:flex;flex-direction:column;gap:1.25rem}
+.exp-full-card.live{border-left:3px solid var(--green)}
+.exp-full-card.planned{border-left:3px solid var(--text-3)}
+.exp-full-card.completed{border-left:3px solid var(--blue)}
+.ec-header{display:flex;flex-direction:column;gap:.5rem}
+.ec-title-row{display:flex;align-items:flex-start;gap:.75rem;flex-wrap:wrap}
+.ec-name{font-size:1.1875rem;font-weight:600;letter-spacing:-.015em;flex:1;min-width:0}
+.decision-badge{display:inline-flex;align-items:center;padding:2px .75rem;border-radius:999px;
+  font-size:.6875rem;font-weight:600;white-space:nowrap}
+.dec-ship{background:var(--green-muted);color:var(--green)}
+.dec-iterate{background:var(--amber-muted);color:var(--amber)}
+.dec-stop{background:var(--red-muted);color:var(--red)}
+.dec-continue{background:var(--bg-inset);color:var(--text-2)}
+.ec-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.ec-date{font-size:.6875rem;color:var(--text-3)}
+.ec-hyp-block{display:flex;flex-direction:column;gap:.375rem}
+.block-label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:.375rem}
+.ec-hyp{font-size:.8125rem;color:var(--text-2);line-height:1.65}
+.ec-stats{display:flex;flex-wrap:wrap;gap:1rem 2rem;background:var(--bg-inset);border-radius:8px;padding:1rem 1.25rem}
+.ec-stat{display:flex;flex-direction:column;gap:.25rem}
+.ec-stat.primary{min-width:200px}
+.ec-stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.ec-stat-metric{font-size:.8125rem;font-weight:600;color:var(--text)}
+.ec-stat-value{font-size:.8125rem;font-weight:500;color:var(--text);font-variant-numeric:tabular-nums}
+.ec-lift-row{display:flex;align-items:baseline;gap:.5rem}
+.ec-lift{font-size:1.375rem;font-weight:700;font-variant-numeric:tabular-nums}
+.ec-sig{font-size:.6875rem;color:var(--text-3)}
+.ec-secondary{background:var(--bg-inset);border:1px solid var(--border);border-radius:8px}
+.ec-secondary summary{padding:.75rem 1rem;font-size:.8125rem;font-weight:500;color:var(--text-2);cursor:pointer;
+  list-style:none;display:flex;align-items:center;justify-content:space-between}
+.ec-secondary[open] summary{border-bottom:1px solid var(--border)}
+.ec-sec-grid{display:flex;flex-wrap:wrap;gap:1rem 2rem;padding:1rem 1.25rem}
+.ec-sec-stat{display:flex;flex-direction:column;gap:.25rem;min-width:160px}
+.ec-learnings{background:#dbeafe;border-radius:var(--radius);padding:1rem 1.25rem}
+[data-theme="dark"] .ec-learnings{background:#1e3a5f}
+.ec-learn-text{font-size:.8125rem;color:var(--text-2);line-height:1.65}
+.ec-decision-prompt{background:var(--amber-bg);border:1px solid var(--amber-muted);border-radius:8px;
+  padding:.75rem 1rem;font-size:.8125rem;font-weight:500;color:var(--amber)}
+
+/* ── Skeleton ──────────────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{background:linear-gradient(90deg,var(--bg-inset) 25%,var(--bg-hover) 50%,var(--bg-inset) 75%);
+  background-size:800px 100%;animation:shimmer 1.4s infinite linear;border-radius:4px}
+
+/* ── Section error ─────────────────────────────────────────── */
+.section-error{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius);
+  padding:2.5rem 2rem;text-align:center;color:var(--text-2)}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media(max-width:1100px){
+  .p0-scale{flex-direction:column;align-items:stretch}
+  .p0-arrow{transform:rotate(90deg);align-self:center}
+  .p0-engine{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+}
+@media(max-width:1024px){
+  :root{--nav-w:60px}
+  .nav-brand-text,.nav-item span:last-child,.nav-item-label,.nav-footer span{display:none}
+  .nav-brand{justify-content:center;padding:1rem}
+  .nav-item{justify-content:center;padding:.5rem}
+  .nav-footer button{justify-content:center;padding:.5rem;width:100%}
+}
+@media(max-width:768px){
+  .main-nav{position:fixed;bottom:0;top:auto;left:0;right:0;width:100%;height:56px;
+    flex-direction:row;border-right:none;border-top:1px solid var(--border)}
+  .main-content{margin-left:0;margin-bottom:56px}
+  :root{--nav-w:0}
+  .nav-brand{display:none}
+  .nav-list{flex-direction:row;flex:1;padding:0 .5rem;align-items:center;justify-content:space-around;gap:0}
+  .nav-list li{flex:1}
+  .nav-item{justify-content:center;padding:.5rem;flex-direction:column;gap:2px}
+  .nav-item span:last-child{display:block;font-size:10px}
+  .nav-footer{padding:0 .5rem;border-top:none;border-left:1px solid var(--border)}
+  .page{padding:1.25rem 1rem 3rem;gap:2rem}
+  .p0-engine{grid-template-columns:1fr}
+  .activation-stats{grid-template-columns:1fr 1fr}
+  .supply-stats{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-  <div class="card">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin:0 auto 1rem">
-      <rect width="24" height="24" rx="6" fill="#0057a8"/>
-      <path d="M6 17l3-8 3 5 3-5 3 8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="synthetic-banner" role="status" aria-live="polite">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 11.5A.75.75 0 118 11a.75.75 0 010 1.5zm.75-3.75a.75.75 0 01-1.5 0v-4a.75.75 0 011.5 0v4z"/></svg>
+  Demonstration data — not real metrics
+</div>
+
+<div class="app-shell">
+  <!-- Nav -->
+  <nav class="main-nav" aria-label="Primary navigation" id="main-nav"></nav>
+  <!-- Main -->
+  <main class="main-content" id="main-content" role="main">
+    <div id="banner-spacer"></div>
+    <div id="app-view"></div>
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// MMC Community Dashboard — Standalone Vanilla JS App
+// All data loaded from /data/*.json via fetch()
+// No npm packages, no build step required
+// Serve from repository root: python3 -m http.server 8080
+// Open: http://localhost:8080/
+// ═══════════════════════════════════════════════════════════
+
+// Show any uncaught JS errors on the page so they're visible without DevTools
+window.onerror = function(msg, src, line, col, err) {
+  var el = document.getElementById('app-view')
+  if (el) el.innerHTML = '<div class="page"><div class="section-error" style="border:2px solid var(--red);padding:1.5rem"><strong>JavaScript error (line ' + line + '):</strong><br><code>' + msg + '</code><br><br>Check browser DevTools console for the full stack trace.</div></div>'
+  return false
+}
+
+// ─── Formatting ───────────────────────────────────────────────
+const nFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+const cFmt = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })
+const pFmt = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 1 })
+const p0Fmt = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 0 })
+const dFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
+
+const fmt = {
+  n: v => nFmt.format(Math.round(v)),
+  c: v => cFmt.format(v),
+  pct: v => pFmt.format(v),
+  pct0: v => p0Fmt.format(v),
+  d: (v,p=1) => p===2 ? new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(v) : dFmt.format(v),
+  chgPct: v => `${v>=0?'+':'−'}${pFmt.format(Math.abs(v))}`,
+  date: s => { const d = new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) },
+  month: s => { if(/^\d{4}-\d{2}$/.test(s)){const[y,m]=s.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'})} return s },
+  rel: s => { const d=new Date(s), h=(Date.now()-d)/3600000; if(h<1)return'less than an hour ago'; if(h<24)return`${Math.floor(h)}h ago`; return `${Math.floor(h/24)}d ago` },
+}
+
+// ─── Statistics ───────────────────────────────────────────────
+function linReg(ys) {
+  const n=ys.length; if(n<3)return null
+  const xs=ys.map((_,i)=>i), xm=xs.reduce((a,b)=>a+b)/n, ym=ys.reduce((a,b)=>a+b)/n
+  let ssxx=0,ssxy=0,ssyy=0
+  for(let i=0;i<n;i++){ssxx+=(xs[i]-xm)**2;ssxy+=(xs[i]-xm)*(ys[i]-ym);ssyy+=(ys[i]-ym)**2}
+  if(!ssxx)return null
+  const slope=ssxy/ssxx, int=ym-slope*xm, r2=ssyy>0?ssxy**2/(ssxx*ssyy):0
+  let sse=0; for(let i=0;i<n;i++)sse+=(ys[i]-(slope*xs[i]+int))**2
+  const mse=sse/(n-2), se=Math.sqrt(mse/ssxx), t=se>0?slope/se:0
+  return {slope,int,r2,se,t,n}
+}
+
+function trendLabel(reg) {
+  if(!reg||reg.r2<.3&&Math.abs(reg.t)<2)return'noisy'
+  const mean=reg.int+reg.slope*(reg.n/2); if(!mean)return'flat'
+  const rel=reg.slope/Math.abs(mean)
+  if(Math.abs(reg.t)<1.5||Math.abs(rel)<.02)return'flat'
+  if(rel>.05&&reg.t>2.5)return'strong-up'; if(rel>.02)return'up'
+  if(rel<-.05&&reg.t<-2.5)return'strong-down'; if(rel<-.02)return'down'
+  return'flat'
+}
+
+function trendSentence(t) {
+  return({
+    'strong-up':'The multi-period trend is strongly upward.',
+    'up':'The multi-period trend is upward.',
+    'flat':'The multi-period trend is flat — this change may not reflect a sustained shift.',
+    'down':'The multi-period trend is downward.',
+    'strong-down':'The multi-period trend is strongly downward.',
+    'noisy':'The series is noisy — interpret this period\'s change cautiously.',
+  })[t]||''
+}
+
+function detectChange(cur,pri,floor=.02) {
+  const chg=(cur-pri)/(pri||1), mag=Math.abs(chg)
+  return {chg,isMeaningful:mag>=floor,size:mag>.1?'large':mag>.04?'medium':'small'}
+}
+
+// ─── Insight engine ───────────────────────────────────────────
+function generateInsights(data,max=3) {
+  const cands=[]; const {p0,supply,activation,manifest}=data, period=manifest.currentPeriodLabel
+  // MAU
+  const mau=p0.monthlyActiveMembers
+  const d=detectChange(mau.current,mau.prior,.01)
+  if(d.isMeaningful){const dir=mau.change>=0?'grew':'declined', pos=mau.change>=0
+    const reg=linReg(mau.history.map(h=>h.value)), tr=reg?trendLabel(reg):'noisy'
+    cands.push({id:'mau',sev:pos?'pos':d.size==='large'?'critical':'caution',
+      title:`Monthly Active Members ${dir} ${fmt.pct(Math.abs(mau.changePct))} ${period}`,
+      body:`MAU moved from ${fmt.c(mau.prior)} to ${fmt.c(mau.current)} (${mau.change>=0?'+':''}${fmt.n(mau.change)} members). ${trendSentence(tr)}`,
+      note:pos?null:'Check activation funnel and activity supply — both influence participation volume.',
+      obs:true,score:d.size==='large'?90:d.size==='medium'?70:40,view:'members'})}
+  // Repeat
+  const rpr=p0.repeatParticipationRate
+  const dr=detectChange(rpr.current,rpr.prior,.02)
+  if(dr.isMeaningful){const dir=rpr.change>=0?'improved':'declined'
+    cands.push({id:'rpr',sev:rpr.change>=0?'pos':dr.size==='large'?'critical':'caution',
+      title:`Repeat Participation Rate ${dir} to ${fmt.pct(rpr.current)} ${period}`,
+      body:`Share of active members returning for a subsequent activity moved from ${fmt.pct(rpr.prior)} to ${fmt.pct(rpr.current)}. This is a behavioral retention signal, not a generic completion rate.`,
+      note:rpr.change<0?'Consider whether activity variety or relevance influences re-engagement. This is associative, not causal.':null,
+      obs:true,score:dr.size==='large'?88:60,view:'activities'})}
+  // Supply
+  const sc=p0.activitySupplyCoverage
+  if(sc.current<.80&&supply?.membersWithZeroAvailablePct!==undefined){
+    cands.push({id:'supply',sev:sc.current<.65?'critical':'caution',
+      title:`Activity Supply Coverage at ${fmt.pct(sc.current)} — ${fmt.pct(supply.membersWithZeroAvailablePct)} of members have no eligible activities`,
+      body:`${fmt.n(supply.membersWithZeroAvailable)} active members have zero eligible activities. This represents a supply-side constraint — low coverage may explain flat participation without indicating low demand.`,
+      hyp:'Hypothesis: expanding activity types or pool size would raise participation if demand exists.',
+      obs:true,score:sc.current<.65?95:75,view:'activities'})}
+  // Activation
+  const ar=p0.newMemberActivationRate
+  const da=detectChange(ar.current,ar.prior,.02)
+  if(da.isMeaningful){const dir=ar.change>=0?'improved':'declined'
+    cands.push({id:'activation',sev:ar.change>=0?'pos':da.size==='large'?'critical':'caution',
+      title:`New Member Activation Rate ${dir} to ${fmt.pct(ar.current)} ${period}`,
+      body:`Share of new members completing their first activity within 14 days moved from ${fmt.pct(ar.prior)} to ${fmt.pct(ar.current)}.`,
+      note:ar.change<0?'Review join flow completion and onboarding steps — drop-offs at either stage reduce activation.':null,
+      obs:true,score:da.size==='large'?82:58,view:'members'})}
+  // Join flow
+  if(activation?.joinFlowCompletionRate<.70){
+    cands.push({id:'joinflow',sev:activation.joinFlowCompletionRate<.55?'critical':'caution',
+      title:`Join Flow Completion at ${fmt.pct(activation.joinFlowCompletionRate)} — top-of-funnel drop-off`,
+      body:`${fmt.pct(1-activation.joinFlowCompletionRate)} of members who started the join flow did not complete it.`,
+      obs:true,score:activation.joinFlowCompletionRate<.55?80:55,view:'members'})}
+  cands.sort((a,b)=>b.score-a.score)
+  return cands.slice(0,max).length?cands.slice(0,max):[{id:'none',sev:'neutral',title:'No meaningful change detected this period',body:'All P0 metrics are within normal variation bounds.',obs:true,score:0,view:'overview'}]
+}
+
+function getAttention(p0) {
+  const items=[], checks=[
+    {key:'monthlyActiveMembers',val:p0.monthlyActiveMembers,pDir:'up',view:'members',neg:'Month-over-month decline — review participation trends'},
+    {key:'newMemberActivationRate',val:p0.newMemberActivationRate,pDir:'up',view:'members',neg:'Activation declining — check join funnel'},
+    {key:'repeatParticipationRate',val:p0.repeatParticipationRate,pDir:'up',view:'members',neg:'Repeat engagement declining'},
+    {key:'activitySupplyCoverage',val:p0.activitySupplyCoverage,pDir:'up',view:'activities',neg:'Supply gap limiting participation opportunity'},
+  ]
+  for(const c of checks){
+    const chg=c.val.prior>0?(c.val.current-c.val.prior)/c.val.prior:0
+    const improving=c.pDir==='up'?chg>=0:chg<=0, mag=Math.abs(chg)
+    let status='healthy'
+    if(!improving&&mag>.1)status='critical'; else if(!improving&&mag>.04)status='watch'
+    if((c.key.includes('Rate')||c.key.includes('Coverage'))&&c.val.current<.40)status='critical'
+    else if((c.key.includes('Rate')||c.key.includes('Coverage'))&&c.val.current<.55&&status!=='critical')status='watch'
+    if(status!=='healthy')items.push({label:c.key.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()),status,note:c.neg,view:c.view})
+  }
+  return items
+}
+
+// ─── SVG Sparkline ────────────────────────────────────────────
+function sparkline(vals, w=72, h=28, color='var(--blue)', target) {
+  if(!vals||vals.length<2)return''
+  const pad=2, pw=w-pad*2, ph=h-pad*2
+  const mn=Math.min(...vals), mx=Math.max(...vals), rng=mx-mn||1
+  const x=(i)=>pad+(i/(vals.length-1))*pw
+  const y=(v)=>pad+ph-((v-mn)/rng)*ph
+  const area=['M '+x(0)+','+y(vals[0]),...vals.slice(1).map((v,i)=>`L ${x(i+1)},${y(v)}`),`L ${x(vals.length-1)},${pad+ph}`,`L ${x(0)},${pad+ph}`,'Z'].join(' ')
+  const line=['M '+x(0)+','+y(vals[0]),...vals.slice(1).map((v,i)=>`L ${x(i+1)},${y(v)}`)].join(' ')
+  const uid='s'+Math.random().toString(36).slice(2)
+  const tLine=target!==undefined?`<line x1="${pad}" y1="${y(Math.max(mn,Math.min(mx,target)))}" x2="${pad+pw}" y2="${y(Math.max(mn,Math.min(mx,target)))}" stroke="var(--amber)" stroke-width="1" stroke-dasharray="3 2" opacity=".7"/>`:''
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false">
+    <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".15"/><stop offset="100%" stop-color="${color}" stop-opacity=".02"/></linearGradient></defs>
+    ${tLine}<path d="${area}" fill="url(#${uid})"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${x(vals.length-1)}" cy="${y(vals[vals.length-1])}" r="2.5" fill="${color}"/>
+  </svg>`
+}
+
+// ─── SVG Line Chart ───────────────────────────────────────────
+function lineChart({series, target, annotations=[], height=220, title, unit='count'}) {
+  const PAD={top:20,right:24,bottom:48,left:56}
+  const allDates=[...new Set(series.flatMap(s=>s.data.map(p=>p.date)))].sort()
+  const allVals=series.flatMap(s=>s.data.map(p=>p.value))
+  if(target)allVals.push(target.value)
+  const vMin=Math.min(...allVals), vMax=Math.max(...allVals), vPad=(vMax-vMin)*.12||vMax*.1
+  const yMin=Math.max(0,vMin-vPad), yMax=vMax+vPad
+  const W=600, H=height, pw=W-PAD.left-PAD.right, ph=H-PAD.top-PAD.bottom
+  const xPos=(d)=>PAD.left+(allDates.indexOf(d)/(allDates.length-1))*pw
+  const yPos=(v)=>PAD.top+ph-((v-yMin)/(yMax-yMin))*ph
+  const yTks=[0,.25,.5,.75,1].map(t=>yMin+(yMax-yMin)*t)
+  const xLbls=allDates.filter((_,i)=>i%(Math.floor(allDates.length/6)||1)===0||i===allDates.length-1)
+  const uid='c'+Math.random().toString(36).slice(2)
+  let paths=''
+  for(const s of series){
+    const pts=s.data.filter(p=>allDates.includes(p.date)).map(p=>[xPos(p.date),yPos(p.value)])
+    if(pts.length<2)continue
+    const area=['M '+pts[0][0]+','+pts[0][1],...pts.slice(1).map(([x,y])=>`L ${x},${y}`),`L ${pts[pts.length-1][0]},${PAD.top+ph}`,`L ${pts[0][0]},${PAD.top+ph}`,'Z'].join(' ')
+    const line=['M '+pts[0][0]+','+pts[0][1],...pts.slice(1).map(([x,y])=>`L ${x},${y}`)].join(' ')
+    if(!s.dashed)paths+=`<path d="${area}" fill="url(#${uid}${s.key})" opacity=".6"/>`
+    paths+=`<path d="${line}" fill="none" stroke="${s.color}" stroke-width="${s.dashed?1.5:2}" ${s.dashed?'stroke-dasharray="5 3"':''} stroke-linecap="round" stroke-linejoin="round"/>`
+  }
+  const tY=target?yPos(target.value):null
+  const annLines=annotations.map(a=>{const ax=xPos(a.date.substring(0,7)); return `<line x1="${ax}" y1="${PAD.top}" x2="${ax}" y2="${PAD.top+ph}" stroke="var(--text-3)" stroke-width="1" stroke-dasharray="3 3" opacity=".4"/><circle cx="${ax}" cy="${PAD.top+6}" r="3" fill="var(--text-3)" opacity=".5"/>`}).join('')
+  const gradients=series.map(s=>`<linearGradient id="${uid}${s.key}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${s.color}" stop-opacity="${s.dashed?0:.12}"/><stop offset="100%" stop-color="${s.color}" stop-opacity="0"/></linearGradient>`).join('')
+  const yGrid=yTks.map(v=>`<line x1="${PAD.left}" y1="${yPos(v)}" x2="${PAD.left+pw}" y2="${yPos(v)}" stroke="var(--border)" stroke-width="1"/><text x="${PAD.left-8}" y="${yPos(v)}" text-anchor="end" dominant-baseline="middle" font-size="10" fill="var(--text-3)">${unit==='pct'?Math.round(v*100)+'%':fmt.c(v)}</text>`).join('')
+  const xLabels=xLbls.map(d=>`<text x="${xPos(d)}" y="${PAD.top+ph+18}" text-anchor="middle" font-size="10" fill="var(--text-3)">${fmt.month(d)}</text>`).join('')
+  const targetLine=tY!==null?`<line x1="${PAD.left}" y1="${tY}" x2="${PAD.left+pw}" y2="${tY}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 3" opacity=".8"/><text x="${PAD.left+pw+4}" y="${tY}" dominant-baseline="middle" font-size="9" fill="var(--amber)" opacity=".9">Target</text>`:''
+  const legend=series.length>1?`<div class="chart-legend">${series.map(s=>`<span class="cl-item"><span class="cl-line" style="${s.dashed?`border-bottom:2px dashed ${s.color};background:transparent`:`background:${s.color}`}"></span>${s.label}</span>`).join('')}${target?`<span class="cl-item"><span class="cl-line" style="border-bottom:2px dashed var(--amber);background:transparent"></span>Target</span>`:''}</div>`:'';
+  // Accessible table
+  const tbl=`<table class="sr-only" aria-label="${title} data table"><thead><tr><th>Period</th>${series.map(s=>`<th>${s.label}</th>`).join('')}</tr></thead><tbody>${allDates.map(d=>`<tr><td>${fmt.month(d)}</td>${series.map(s=>{const pt=s.data.find(p=>p.date===d);return`<td>${pt?fmt.c(pt.value):'—'}</td>`}).join('')}</tr>`).join('')}</tbody></table>`
+  return `<div class="chart-wrap" id="chart-${uid}">${tbl}
+    <svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${title} chart — data table below">
+      <defs>${gradients}</defs>
+      ${yGrid}${annLines}${targetLine}${paths}
+      <line x1="${PAD.left}" y1="${PAD.top+ph}" x2="${PAD.left+pw}" y2="${PAD.top+ph}" stroke="var(--border-md)" stroke-width="1"/>
+      ${xLabels}
     </svg>
-    <h1>Member's Mark Community Dashboard</h1>
-    <p>
-      The full React app requires <code>npm install &amp;&amp; npm run dev</code>.<br>
-      To preview the dashboard now, open the standalone version:
-    </p>
-    <a class="btn" href="/public/standalone.html">Open Dashboard →</a>
-    <p style="margin-top:1.5rem;font-size:.75rem;color:#94a3b8">
-      Or run: <code>python3 -m http.server 4321</code> and open<br>
-      <code>http://localhost:4321/public/standalone.html</code>
-    </p>
-  </div>
-  <script>
-    // Auto-redirect to standalone after a brief moment
-    setTimeout(function(){ location.href = '/public/standalone.html' }, 800)
-  </script>
+    ${legend}
+  </div>`
+}
+
+// ─── Data loader ──────────────────────────────────────────────
+// Uses a relative path so it works at any host, path depth, or subpath.
+// GitHub Pages (repo subpath), custom domain, or local server all work.
+// fetch('./data/x.json') resolves relative to document.baseURI:
+//   http://localhost:8080/              → http://localhost:8080/data/x.json ✓
+//   https://org.github.io/repo/        → https://org.github.io/repo/data/x.json ✓
+async function loadJson(path) {
+  try { const r=await fetch(path); if(!r.ok)throw new Error(`HTTP ${r.status}`); return await r.json() }
+  catch(e) { return null }
+}
+async function loadAll() {
+  const base = './data/'
+  const [manifest,p0,lifecycle,activation,retention,depth,supply,mix,performance,experiments] = await Promise.all([
+    loadJson(base+'manifest.json'), loadJson(base+'p0-metrics.json'), loadJson(base+'member-lifecycle.json'),
+    loadJson(base+'activation.json'), loadJson(base+'cohort-retention.json'), loadJson(base+'participation-depth.json'),
+    loadJson(base+'activity-supply.json'), loadJson(base+'activity-mix.json'), loadJson(base+'activity-performance.json'),
+    loadJson(base+'experiments.json'),
+  ])
+  return {manifest,p0,lifecycle,activation,retention,depth,supply,mix,performance,experiments:experiments?.experiments??[]}
+}
+
+// ─── Navigation ───────────────────────────────────────────────
+const NAV_ITEMS = [
+  {id:'overview',label:'Overview',icon:'<rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/>'},
+  {id:'members',label:'Members',icon:'<circle cx="8" cy="6" r="3"/><path d="M2 17c0-3.314 2.686-6 6-6"/><circle cx="15" cy="9" r="2.5"/><path d="M12 17c0-2.485 1.343-4.5 3-4.5s3 2.015 3 4.5"/>'},
+  {id:'activities',label:'Activities',icon:'<path d="M10 3v14M3 10h14"/><circle cx="10" cy="10" r="7"/>'},
+  {id:'experiments',label:'Experiments',icon:'<path d="M7 3v7l-4 7h14l-4-7V3"/><path d="M7 3h6"/>'},
+]
+
+function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
+  const nav = document.getElementById('main-nav')
+  nav.innerHTML = `
+    <div class="nav-brand">
+      <div class="nav-brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect width="24" height="24" rx="6" fill="var(--brand)"/>
+          <path d="M6 17l3-8 3 5 3-5 3 8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-name">Member's Mark</div>
+        <div class="nav-brand-sub">Community</div>
+      </div>
+    </div>
+    <ul class="nav-list" role="list">
+      ${NAV_ITEMS.map(item=>`
+        <li>
+          <button class="nav-item${currentRoute===item.id?' active':''}" data-route="${item.id}"
+            aria-current="${currentRoute===item.id?'page':'false'}" role="tab">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${item.icon}</svg>
+            <span class="nav-item-label">${item.label}</span>
+          </button>
+        </li>`).join('')}
+    </ul>
+    <div class="nav-footer">
+      <button class="nav-item" id="theme-toggle" aria-label="Switch to ${theme==='light'?'dark':'light'} theme">
+        ${theme==='light'
+          ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"/></svg>'
+          : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M17.5 10.5A7.5 7.5 0 119 3a5.5 5.5 0 008.5 7.5z"/></svg>'
+        }
+        <span>${theme==='light'?'Dark mode':'Light mode'}</span>
+      </button>
+    </div>`
+  nav.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>onNavigate(btn.dataset.route)))
+  var tt = nav.querySelector('#theme-toggle')
+  if (tt) tt.addEventListener('click', onThemeToggle)
+}
+
+// ─── Metric card HTML ─────────────────────────────────────────
+function metricCardHTML({def, snap, target, denomValue, variant='primary', navView}) {
+  const valStr = def.unit==='pct'||def.unit==='rate' ? fmt.pct(snap.current) : def.unit==='number' ? fmt.d(snap.current) : fmt.n(snap.current)
+  const chgStr = fmt.chgPct(snap.changePct)
+  const dir = snap.direction === def.positiveDir ? 'pos' : snap.direction==='flat' ? 'neu' : 'neg'
+  const dirIcon = snap.direction==='up'?'▲':snap.direction==='down'?'▼':'—'
+  const sparkVals = snap.history.map(h=>h.value)
+  const sparkColor = dir==='pos'?'var(--blue)':dir==='neu'?'var(--chart-muted)':'var(--red)'
+  const denomStr = denomValue&&denomValue>0&&def.denominator ? `${((snap.current/denomValue)*100).toFixed(1)}% of ${def.denominator}` : null
+  const progPct = target ? Math.min(1, snap.current/target.value) : null
+  return `<article class="metric-card${variant==='subordinate'?' sub':''}${navView?' clickable':''}"
+    ${navView?`role="button" tabindex="0" data-nav="${navView}" aria-label="${def.label}: ${valStr}, ${chgStr}"`:''}>
+    <div class="mc-header">
+      <span class="mc-label">${def.label}</span>
+      ${sparkVals.length>=2 ? sparkline(sparkVals, variant==='subordinate'?56:72, variant==='subordinate'?22:28, sparkColor, target?.value) : ''}
+    </div>
+    <div class="mc-value tabular" aria-hidden="true">${valStr}</div>
+    <div class="mc-footer">
+      <span class="delta ${dir}" aria-label="${chgStr} ${dir==='pos'?'positive':dir==='neu'?'neutral':'negative'}">
+        <span aria-hidden="true">${dirIcon}</span> ${chgStr}
+      </span>
+      ${denomStr ? `<span class="mc-denom">${denomStr}</span>` : ''}
+    </div>
+    ${progPct!==null&&target ? `<div class="mc-progress">
+      <div class="progress-bar-bg" role="progressbar" aria-valuenow="${Math.round(progPct*100)}" aria-valuemin="0" aria-valuemax="100" aria-label="Progress toward target">
+        <div class="progress-bar-fill" style="width:${Math.min(progPct*100,100)}%;background:var(--blue)"></div>
+      </div>
+      <div class="mc-target-label">Target: ${def.unit==='pct'?fmt.pct(target.value):fmt.n(target.value)} by ${target.byDate}</div>
+    </div>` : ''}
+  </article>`
+}
+
+// ─── OVERVIEW PAGE ────────────────────────────────────────────
+function renderOverview(data) {
+  const {manifest,p0,lifecycle,experiments,supply,activation} = data
+  const tgts = manifest.targets || {}
+  const isStale = () => { const d=new Date(manifest.generatedAt||manifest.dataThrough), h=(Date.now()-d)/3.6e6; return h>manifest.freshnessThresholdHours }
+
+  const defs = {
+    totalMembers:          {label:'Total Members',unit:'count',positiveDir:'up'},
+    monthlyActiveMembers:  {label:'Monthly Active Members',unit:'count',positiveDir:'up',denominator:'Total Members'},
+    highlyEngagedMembers:  {label:'Highly Engaged Members',unit:'count',positiveDir:'up',denominator:'Monthly Active Members'},
+    newMemberActivationRate: {label:'New Member Activation Rate',unit:'pct',positiveDir:'up'},
+    repeatParticipationRate: {label:'Repeat Participation Rate',unit:'pct',positiveDir:'up'},
+    activitySupplyCoverage:  {label:'Activity Supply Coverage',unit:'pct',positiveDir:'up'},
+  }
+
+  const insights = generateInsights(data)
+  const attention = getAttention(p0)
+  const mauHistory = lifecycle?.mauHistory || p0.monthlyActiveMembers.history
+  const liveExps = experiments.filter(e=>e.status==='live')
+
+  const insightCards = insights.map(ins=>`
+    <article class="insight-card ${ins.sev}" aria-labelledby="ins-${ins.id}">
+      <div class="ic-header">
+        <span class="ic-icon" role="img" aria-label="${ins.sev}">
+          ${ins.sev==='pos'?'↑':ins.sev==='caution'?'△':ins.sev==='critical'?'▼':'—'}
+        </span>
+        <h3 id="ins-${ins.id}" class="ic-title">${ins.title}</h3>
+      </div>
+      <p class="ic-body">${ins.body}</p>
+      ${ins.note?`<p class="ic-note"><strong>Related:</strong> ${ins.note}</p>`:''}
+      ${ins.hyp?`<p class="ic-note"><strong>Hypothesis:</strong> ${ins.hyp}</p>`:''}
+      ${ins.obs&&ins.sev!=='neutral'?`<p class="ic-obs">Observational data — association, not causation.</p>`:''}
+      ${ins.view&&ins.view!=='overview'?`<button class="ic-action" data-nav="${ins.view}">Investigate →</button>`:''}
+    </article>`).join('')
+
+  const attentionHtml = attention.length===0 ? `<div class="all-healthy"><div class="ah-icon">✓</div><div><div class="ah-title">All metrics healthy</div><div class="ah-sub">No P0 metrics require immediate attention.</div></div></div>`
+    : `<ul class="attention-list" role="list">${attention.map(item=>`
+      <li><button class="attention-item ${item.status}" data-nav="${item.view}" aria-label="${item.label}: ${item.status}. ${item.note}">
+        <span class="ai-icon" role="img" aria-label="${item.status}">${item.status==='critical'?'!':'△'}</span>
+        <div class="ai-content"><div class="ai-metric">${item.label}</div><div class="ai-note">${item.note}</div></div>
+        <span class="ai-badge">${item.status==='critical'?'Needs Attention':'Watch'}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
+      </button></li>`).join('')}</ul>`
+
+  const expCards = liveExps.length===0
+    ? `<div class="section-error" role="status">No live experiments</div>`
+    : liveExps.map(exp=>{
+        const matChip = {collecting:'chip-neutral',directional:'chip-directional','decision-ready':'chip-decision'}[exp.maturity]||'chip-neutral'
+        const matLabel = {collecting:'Collecting data',directional:'Directional','decision-ready':'Decision ready'}[exp.maturity]
+        const lift=exp.primaryMetric?.observedLift
+        const liftClass=lift===null?'':exp.primaryMetric.direction==='up'?'lift-up':exp.primaryMetric.direction==='down'?'lift-down':'lift-flat'
+        const gr={healthy:'✓',watch:'△',tripped:'!','n/a':'—'}
+        const grColor={healthy:'var(--green)',watch:'var(--amber)',tripped:'var(--red)','n/a':'var(--text-3)'}
+        return `<article class="exp-card" role="listitem" data-nav="experiments" tabindex="0"
+          aria-label="${exp.name}">
+          <div class="exp-header">
+            <div class="exp-title-row">
+              <span class="chip chip-live"><span class="live-dot" aria-hidden="true"></span>Live</span>
+              <h3 class="exp-name">${exp.name}</h3>
+            </div>
+            <span class="chip ${matChip}">${matLabel}</span>
+          </div>
+          <p class="exp-hyp">${exp.hypothesis}</p>
+          <div class="exp-stats">
+            <div><div class="es-label">Primary metric</div><div class="es-value">${exp.primaryMetric?.label||'—'}</div></div>
+            ${lift!==null?`<div><div class="es-label">Observed lift</div><div class="es-value ${liftClass}">${lift>=0?'+':''}${fmt.pct(lift)}${exp.maturity!=='decision-ready'?'*':''}</div></div>`:''}
+            ${exp.rolloutPct!==null?`<div><div class="es-label">Rollout</div><div class="es-value">${exp.rolloutPct}%</div></div>`:''}
+            <div><div class="es-label">Guardrails</div><div class="es-value" style="color:${grColor[exp.guardrailState]}">${gr[exp.guardrailState]} ${exp.guardrailState==='n/a'?'—':exp.guardrailState}</div></div>
+            ${exp.decisionDate?`<div><div class="es-label">Decision date</div><div class="es-value">${fmt.date(exp.decisionDate)}</div></div>`:''}
+          </div>
+          ${exp.maturity==='decision-ready'?`<div class="exp-decide-ready">Ready for decision — review in Experiments</div>`:''}</article>`}).join('')
+
+  return `<div class="page">
+    <!-- Header -->
+    <header class="page-header">
+      <div class="page-header-row">
+        <div><h1 class="page-title">Member's Mark Community</h1><p class="page-subtitle">Product Dashboard</p></div>
+        <div class="header-meta">
+          <div class="meta-item"><div class="meta-label">Data through</div><div class="meta-value">${fmt.date(manifest.dataThrough)}</div></div>
+          <div class="meta-sep" aria-hidden="true"></div>
+          <div class="meta-item"><div class="meta-label">Updated</div><div class="meta-value${isStale()?' stale':''}">${fmt.rel(manifest.generatedAt||manifest.dataThrough)}</div></div>
+        </div>
+      </div>
+      ${isStale()?`<div class="stale-warn" role="alert">⚠ Data is more than ${manifest.freshnessThresholdHours}h old. The batch process may not have run.</div>`:''}
+    </header>
+
+    <!-- P0: Community Scale -->
+    <section aria-labelledby="health-h">
+      <h2 id="health-h" class="section-heading">Product Health</h2>
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-top:1rem">
+        <div class="p0-group">
+          <div class="p0-group-header">
+            <span class="p0-group-label">Community Scale</span>
+            <span class="p0-group-desc">Total reach → active → deeply engaged</span>
+          </div>
+          <div class="p0-scale">
+            ${metricCardHTML({def:defs.totalMembers, snap:p0.totalMembers, target:tgts.totalMembers})}
+            <div class="p0-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--border-md)" stroke-width="1.5" stroke-linecap="round"><path d="M5 10h10M12 7l3 3-3 3"/></svg></div>
+            ${metricCardHTML({def:defs.monthlyActiveMembers, snap:p0.monthlyActiveMembers, target:tgts.monthlyActiveMembers, denomValue:p0.totalMembers.current, variant:'subordinate'})}
+            <div class="p0-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--border-md)" stroke-width="1.5" stroke-linecap="round"><path d="M5 10h10M12 7l3 3-3 3"/></svg></div>
+            ${metricCardHTML({def:defs.highlyEngagedMembers, snap:p0.highlyEngagedMembers, target:tgts.highlyEngagedMembers, denomValue:p0.monthlyActiveMembers.current, variant:'subordinate'})}
+          </div>
+        </div>
+        <div class="p0-group">
+          <div class="p0-group-header">
+            <span class="p0-group-label">Participation Engine</span>
+            <span class="p0-group-desc">Activation → repeat engagement, conditioned by supply</span>
+          </div>
+          <div class="p0-engine">
+            ${metricCardHTML({def:defs.newMemberActivationRate, snap:p0.newMemberActivationRate, target:tgts.newMemberActivationRate})}
+            ${metricCardHTML({def:defs.repeatParticipationRate, snap:p0.repeatParticipationRate})}
+            ${metricCardHTML({def:defs.activitySupplyCoverage, snap:p0.activitySupplyCoverage})}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What's Changed + Needs Attention -->
+    <div class="two-col">
+      <section aria-labelledby="whats-changed-h">
+        <h2 id="whats-changed-h" class="section-heading">What's Changed</h2>
+        <div class="insights-list" style="margin-top:.75rem">${insightCards}</div>
+      </section>
+      <section aria-labelledby="attention-h">
+        <h2 id="attention-h" class="section-heading">Needs Attention</h2>
+        <div class="attention-module" style="margin-top:.75rem" role="status" aria-live="polite">${attentionHtml}</div>
+      </section>
+    </div>
+
+    <!-- Community Growth -->
+    <section aria-labelledby="growth-h">
+      <div class="section-heading-row">
+        <h2 id="growth-h" class="section-heading">Community Growth</h2>
+        <p class="section-sub">Monthly Active Members over time</p>
+      </div>
+      <div class="surface surface-p" style="margin-top:1rem">
+        ${lineChart({
+          title:'Community Growth',
+          series:[
+            {key:'mau',label:'Monthly Active Members',data:mauHistory,color:'var(--blue)'},
+            {key:'he',label:'Highly Engaged',data:p0.highlyEngagedMembers.history,color:'var(--violet)',dashed:true},
+          ],
+          target:tgts.monthlyActiveMembers,
+          annotations:manifest.annotations||[],
+          height:240,
+        })}
+      </div>
+    </section>
+
+    <!-- Experiment Radar -->
+    <section aria-labelledby="exp-radar-h">
+      <div class="section-heading-row">
+        <h2 id="exp-radar-h" class="section-heading">Experiment Radar</h2>
+        <button class="section-link" data-nav="experiments">View all →</button>
+      </div>
+      <div class="exp-radar" style="margin-top:1rem" role="list">${expCards}</div>
+    </section>
+  </div>`
+}
+
+// ─── MEMBERS PAGE ─────────────────────────────────────────────
+function renderMembers(data, activeTab='journey') {
+  const {lifecycle, activation, retention, depth} = data
+  const tabBar = (tabs, active) => `<nav class="tab-bar" role="tablist" aria-label="Members sections">
+    ${tabs.map(t=>`<button class="tab-btn${active===t.id?' active':''}" role="tab" data-tab="${t.id}" aria-selected="${active===t.id}" aria-controls="tab-${t.id}">${t.label}</button>`).join('')}
+  </nav>`
+
+  // Journey
+  const journeyHtml = lifecycle ? (() => {
+    const stages = lifecycle.stages; const top = stages[0]?.count||1
+    return `<div class="journey" role="img" aria-label="Member lifecycle steps">
+      <table class="sr-only"><thead><tr><th>Stage</th><th>Count</th><th>% of Joined</th></tr></thead><tbody>
+        ${stages.map(s=>`<tr><td>${s.stage}</td><td>${fmt.n(s.count)}</td><td>${fmt.pct(s.count/top)}</td></tr>`).join('')}
+      </tbody></table>
+      ${stages.map((s,i)=>{
+        const prev=stages[i-1]; const cv=prev?s.count/prev.count:1; const ct=s.count/top
+        const warn=i>0&&cv<.8
+        return `${i>0?`<div class="journey-connector${warn?' warn':''}">${fmt.pct(cv)} retained</div>`:''}
+        <div class="journey-card">
+          <div class="jc-meta">
+            <span class="jc-label">${s.stage}</span>
+            <span class="jc-count tabular">${fmt.n(s.count)}</span>
+            ${i>0?`<span class="jc-pct">${fmt.pct(ct)} of total</span>`:''}
+          </div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${ct*100}%;background:${i===0?'var(--blue)':i===stages.length-1?'var(--emerald)':'var(--violet)'}"></div></div>
+        </div>`}).join('')}
+    </div>`})() : `<div class="section-error">Lifecycle data unavailable</div>`
+
+  // Activation
+  const activationHtml = activation ? `
+    <div class="activation-stats">
+      ${[
+        {label:'Join Flow Completion', val:fmt.pct(activation.joinFlowCompletionRate)},
+        {label:'Onboarding Completion', val:fmt.pct(activation.onboardingCompletionRate)},
+        {label:'Median Days to First Activity', val:fmt.d(activation.medianDaysToFirstParticipation)+'d'},
+        {label:'First Research Activity Rate', val:fmt.pct(activation.firstResearchActivityCompletionRate)},
+      ].map(s=>`<div class="act-stat"><div class="as-label">${s.label}</div><div class="as-value tabular">${s.val}</div></div>`).join('')}
+    </div>
+    <div class="surface surface-p" style="margin-top:1rem">
+      <table class="sr-only" aria-label="Activation funnel"><thead><tr><th>Step</th><th>Members</th><th>From start</th><th>From prior</th></tr></thead>
+        <tbody>${activation.steps.map(s=>`<tr><td>${s.step}</td><td>${fmt.n(s.count)}</td><td>${fmt.pct(s.conversionFromTop)}</td><td>${fmt.pct(s.conversionFromPrior)}</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="funnel-steps" aria-hidden="true">
+        ${activation.steps.map((s,i)=>{const maxW=activation.steps[0].count; const warn=i>0&&s.conversionFromPrior<.75
+          return `<div class="funnel-row">
+            <div class="funnel-label-col">
+              <span class="fl-name">${s.step}</span>
+              ${s.medianDaysFromJoin!==undefined?`<span class="fl-timing">~${fmt.d(s.medianDaysFromJoin)}d from join</span>`:''}
+            </div>
+            <div class="funnel-bar-area">
+              <div class="funnel-bar" style="width:${(s.count/maxW)*100}%;background:${i===activation.steps.length-1?'var(--emerald)':'var(--blue)'}"></div>
+              <span class="funnel-count tabular">${fmt.n(s.count)}</span>
+              ${i>0?`<span class="funnel-conv${warn?' warn':''}">${fmt.pct(s.conversionFromPrior)} from prior</span>`:''}
+            </div>
+          </div>`}).join('')}
+      </div>
+    </div>` : `<div class="section-error">Activation data unavailable</div>`
+
+  // Retention heatmap
+  const retentionHtml = retention ? (() => {
+    const cohorts = retention.cohorts.slice(-8)
+    const weeks = ['w1','w2','w4','w8','w12'], wLabels=['W1','W2','W4','W8','W12']
+    const cl = (v) => v===null?'transparent':`rgba(59,130,246,${.1+v*.85})`
+    const tc = (v) => v>0.5?'#fff':'var(--text)'
+    return `<div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <div class="act-stat"><div class="as-label">Median W2 Retention</div><div class="as-value">${fmt.pct(retention.medianW2Retention)}</div></div>
+        <div class="act-stat"><div class="as-label">Median W4 Retention</div><div class="as-value">${fmt.pct(retention.medianW4Retention)}</div></div>
+      </div>
+      <div class="heatmap-wrap">
+        <table class="heatmap-table" aria-label="Cohort retention heatmap">
+          <thead><tr><th class="hm-cohort">Cohort</th><th class="hm-size" style="text-align:right">Size</th>
+            ${wLabels.map(w=>`<th style="width:72px;text-align:center">${w}</th>`).join('')}
+          </tr></thead>
+          <tbody>${cohorts.map(c=>`<tr>
+            <th scope="row" class="hm-cohort">${fmt.month(c.cohortLabel)}</th>
+            <td class="hm-size">${fmt.n(c.startSize)}</td>
+            ${weeks.map((w,wi)=>{const v=c[w]; return `<td class="hm-cell" style="background:${cl(v)};color:${v!==null?tc(v):'var(--text-3)'}"
+              aria-label="${v!==null?fmt.pct(v):'N/A'}">${v!==null?fmt.pct(v):'—'}</td>`}).join('')}
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="heatmap-legend" style="margin-top:.75rem">
+        <span>Lower retention</span>
+        <div class="hl-gradient"></div>
+        <span>Higher retention</span>
+        <span style="margin-left:auto;font-size:.6875rem;color:var(--text-3)">— = not yet available</span>
+      </div>`})() : `<div class="section-error">Retention data unavailable</div>`
+
+  // Depth
+  const depthHtml = depth ? (() => {
+    const maxC = Math.max(...depth.buckets.map(b=>b.count))
+    return `<div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <div class="act-stat"><div class="as-label">Avg Activities / Active Member</div><div class="as-value tabular">${fmt.d(depth.activitiesPerActiveMember)}</div></div>
+        <div class="act-stat"><div class="as-label">Highly Engaged (5+)</div><div class="as-value tabular">${fmt.pct(depth.buckets.filter(b=>b.isHighlyEngaged).reduce((s,b)=>s+b.shareOfActive,0))} of MAU</div></div>
+      </div>
+      <table class="sr-only" aria-label="Participation depth distribution"><thead><tr><th>Bucket</th><th>Members</th><th>Share</th></tr></thead><tbody>
+        ${depth.buckets.map(b=>`<tr><td>${b.label}</td><td>${fmt.n(b.count)}</td><td>${fmt.pct(b.shareOfActive)}</td></tr>`).join('')}
+      </tbody></table>
+      <div class="depth-bars" aria-hidden="true">
+        ${depth.buckets.map(b=>`<div class="depth-col${b.isHighlyEngaged?' engaged':''}">
+          <div class="db-count tabular">${fmt.c(b.count)}</div><div class="db-pct">${fmt.pct(b.shareOfActive)}</div>
+          <div class="db-bar-bg"><div class="db-bar" style="height:${(b.count/maxC)*200}px;background:${b.isHighlyEngaged?'var(--emerald)':'var(--blue)'}"></div></div>
+          <div class="db-label">${b.label}</div>
+          ${b.isHighlyEngaged?'<div class="db-he-tag">Highly Engaged</div>':''}
+        </div>`).join('')}
+      </div>
+      <p class="depth-note" style="margin-top:.75rem">Highly Engaged threshold: 5+ activities/month (shown in green)</p>`})() : `<div class="section-error">Depth data unavailable</div>`
+
+  const tabs = [{id:'journey',label:'Member Journey'},{id:'activation',label:'Activation'},{id:'retention',label:'Retention'},{id:'depth',label:'Participation Depth'}]
+  const content = {journey:journeyHtml, activation:activationHtml, retention:retentionHtml, depth:depthHtml}
+
+  return `<div class="page">
+    <header class="page-header"><h1 class="page-title">Members</h1><p class="page-subtitle">Lifecycle, activation, depth and retention.</p></header>
+    ${tabBar(tabs, activeTab)}
+    <div id="tab-${activeTab}" role="tabpanel" aria-labelledby="${activeTab}-tab">${content[activeTab]||''}</div>
+  </div>`
+}
+
+// ─── ACTIVITIES PAGE ──────────────────────────────────────────
+function renderActivities(data, activeTab='supply') {
+  const {supply, mix, performance} = data
+  const COLORS = ['var(--blue)','var(--violet)','var(--emerald)','var(--amber)','var(--red)']
+
+  const supplyHtml = supply ? `
+    <div class="supply-stats">
+      <div class="supply-stat${supply.activitySupplyCoverage<.80?' warn':''}">
+        <div class="ss-label">Activity Supply Coverage</div>
+        <div class="ss-value tabular">${fmt.pct(supply.activitySupplyCoverage)}</div>
+        <div class="ss-note">${supply.activitySupplyCoverage<.80?`${fmt.pct(supply.membersWithZeroAvailablePct)} of active members have no eligible activities`:'Most active members have at least one eligible activity'}</div>
+      </div>
+      <div class="supply-stat">
+        <div class="ss-label">Eligible Activities per Member</div>
+        <div class="ss-value tabular">${fmt.d(supply.eligibleActivitiesPerMember)}</div>
+        <div class="ss-note">Average in current week</div>
+      </div>
+      <div class="supply-stat${supply.membersWithZeroAvailablePct>.2?' warn':''}">
+        <div class="ss-label">Members with Zero Available</div>
+        <div class="ss-value tabular">${fmt.n(supply.membersWithZeroAvailable)}</div>
+        <div class="ss-note">${fmt.pct(supply.membersWithZeroAvailablePct)} of MAU</div>
+      </div>
+    </div>
+    ${supply.activitySupplyCoverage<.80?`<div class="supply-alert" role="alert"><strong>Supply constraint detected:</strong> Coverage at ${fmt.pct(supply.activitySupplyCoverage)} is below the 80% threshold. Participation-rate changes may reflect supply limitations, not reduced demand.</div>`:''}
+    <div class="surface surface-p">
+      <h3 style="font-size:.8125rem;font-weight:600;color:var(--text-2);margin-bottom:1rem">Supply Coverage Over Time</h3>
+      ${lineChart({title:'Activity Supply Coverage',series:[{key:'cov',label:'Supply Coverage',data:supply.history.map(h=>({date:h.date,value:h.coveragePct})),color:'var(--blue)'}],height:200,unit:'pct'})}
+    </div>` : `<div class="section-error">Supply data unavailable</div>`
+
+  const mixHtml = mix ? `
+    <div class="mix-table-wrap">
+      <table class="mix-table" aria-label="Activity mix: supply share vs completion share">
+        <thead><tr><th>Activity Type</th><th>Supply Share</th><th>Completion Share</th><th style="text-align:right">vs. Supply</th></tr></thead>
+        <tbody>
+          ${mix.types.map((t,i)=>{
+            const diff=t.completionShare-t.supplyShare, over=diff>.02, under=diff<-.02
+            return `<tr>
+              <th scope="row" class="mix-type"><span class="mix-dot" style="background:${COLORS[i%COLORS.length]}"></span>${t.label}</th>
+              <td><div class="mix-bar-row"><div class="mix-bar mix-bar-supply" style="width:${t.supplyShare*100}%"></div><span class="mix-pct">${fmt.pct(t.supplyShare)}</span></div></td>
+              <td><div class="mix-bar-row"><div class="mix-bar" style="width:${t.completionShare*100}%;background:${COLORS[i%COLORS.length]}"></div><span class="mix-pct">${fmt.pct(t.completionShare)}</span></div></td>
+              <td class="mix-diff${over?' over':under?' under':''}">${diff>=0?'+':''}${fmt.pct(diff)}</td>
+            </tr>`}).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p class="mix-note" style="margin-top:.75rem">"vs. Supply" shows whether completions are over (+) or under (−) represented relative to supply. Large differences may indicate over-promotion or friction.</p>` : `<div class="section-error">Mix data unavailable</div>`
+
+  const perfTypes = (performance?.types||[]).slice().sort((a,b)=>b.completionRate-a.completionRate)
+  const maxRate = Math.max(...(performance?.types||[]).map(t=>t.completionRate)||[1])
+  const perfHtml = performance ? `
+    <div class="perf-wrap">
+      <table class="perf-table" aria-label="Activity performance by type">
+        <thead><tr>
+          <th><span class="sort-btn">Activity Type</span></th>
+          <th><span class="sort-btn">Available</span></th>
+          <th><span class="sort-btn">Completed</span></th>
+          <th><span class="sort-btn">Completion Rate ↓</span></th>
+          <th aria-hidden="true"></th>
+        </tr></thead>
+        <tbody>
+          ${perfTypes.map(t=>`<tr>
+            <th scope="row" class="perf-type">${t.label}</th>
+            <td class="perf-num">${fmt.n(t.totalAvailable)}</td>
+            <td class="perf-num">${fmt.n(t.totalCompleted)}</td>
+            <td class="perf-rate${t.completionRate>.75?' high':t.completionRate<.45?' low':''}">${fmt.pct(t.completionRate)}</td>
+            <td class="perf-bar-cell"><div class="perf-bar-bg"><div class="perf-bar-fill" style="width:${(t.completionRate/maxRate)*100}%;background:${t.completionRate>.75?'var(--green)':t.completionRate<.45?'var(--amber)':'var(--blue)'}"></div></div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p class="perf-note" style="margin-top:.75rem">Completion rate = completed ÷ available. Quick Polls and Trivia show lower rates due to higher supply volume.</p>` : `<div class="section-error">Performance data unavailable</div>`
+
+  const tabs = [{id:'supply',label:'Activity Supply'},{id:'mix',label:'Activity Mix'},{id:'performance',label:'Performance by Type'}]
+  const content = {supply:supplyHtml, mix:mixHtml, performance:perfHtml}
+  const tabBar = `<nav class="tab-bar" role="tablist">${tabs.map(t=>`<button class="tab-btn${activeTab===t.id?' active':''}" role="tab" data-tab="${t.id}">${t.label}</button>`).join('')}</nav>`
+
+  return `<div class="page">
+    <header class="page-header"><h1 class="page-title">Activities</h1><p class="page-subtitle">Are we giving members enough valuable things to do, and how do those opportunities perform?</p></header>
+    ${tabBar}
+    <div id="tab-${activeTab}">${content[activeTab]||''}</div>
+  </div>`
+}
+
+// ─── EXPERIMENTS PAGE ─────────────────────────────────────────
+function renderExperiments(data, activeTab='live') {
+  const exps = data.experiments || []
+  const filtered = exps.filter(e=>e.status===activeTab)
+  const counts = {live:exps.filter(e=>e.status==='live').length, planned:exps.filter(e=>e.status==='planned').length, completed:exps.filter(e=>e.status==='completed').length}
+  const gr = {healthy:'✓ Healthy',watch:'△ Watch',tripped:'! Tripped','n/a':'—'}
+  const grColor = {healthy:'var(--green)',watch:'var(--amber)',tripped:'var(--red)','n/a':'var(--text-3)'}
+  const decMeta = {ship:{label:'Ship',cls:'dec-ship'}, iterate:{label:'Iterate',cls:'dec-iterate'}, stop:{label:'Stop',cls:'dec-stop'}, continue:{label:'Continue collecting',cls:'dec-continue'}}
+  const matMeta = {collecting:{label:'Collecting data',chip:'chip-neutral'}, directional:{label:'Directional',chip:'chip-directional'}, 'decision-ready':{label:'Decision ready',chip:'chip-decision'}}
+
+  const tabs = ['live','planned','completed'].map(s=>`<button class="tab-btn${activeTab===s?' active':''}" role="tab" data-tab="${s}">
+    ${s.charAt(0).toUpperCase()+s.slice(1)} <span class="tab-count">${counts[s]}</span>
+  </button>`).join('')
+
+  const cards = filtered.length===0
+    ? `<div class="section-error" role="status" aria-live="polite">No ${activeTab} experiments.</div>`
+    : filtered.map(exp=>{
+        const mat=matMeta[exp.maturity]||{label:exp.maturity,chip:'chip-neutral'}
+        const dec=exp.decision?decMeta[exp.decision]:null
+        const lift=exp.primaryMetric?.observedLift
+        const liftClass=lift===null?'':exp.primaryMetric?.direction==='up'?'lift-up':exp.primaryMetric?.direction==='down'?'lift-down':'lift-flat'
+        return `<article class="exp-full-card ${exp.status}" aria-labelledby="ec-${exp.id}">
+          <div class="ec-header">
+            <div class="ec-title-row">
+              <h2 id="ec-${exp.id}" class="ec-name">${exp.name}</h2>
+              <span class="chip ${mat.chip}">${mat.label}</span>
+              ${dec?`<span class="decision-badge ${dec.cls}">${dec.label}</span>`:''}
+            </div>
+            <div class="ec-meta">
+              <span class="ec-date">Started ${fmt.date(exp.startDate)}${exp.endDate?' — Ended '+fmt.date(exp.endDate):''}</span>
+              ${exp.decisionDate&&exp.status!=='completed'?`<span class="ec-date">Decision: ${fmt.date(exp.decisionDate)}</span>`:''}
+            </div>
+          </div>
+          <div class="ec-hyp-block">
+            <span class="block-label">Hypothesis</span>
+            <p class="ec-hyp">${exp.hypothesis}</p>
+          </div>
+          <div class="ec-stats">
+            <div class="ec-stat primary">
+              <span class="ec-stat-label">Primary Metric</span>
+              <span class="ec-stat-metric">${exp.primaryMetric?.label||'—'}</span>
+              ${lift!==null?`<div class="ec-lift-row"><span class="ec-lift ${liftClass}">${lift>=0?'+':''}${fmt.pct(lift)}</span><span class="ec-sig">${exp.primaryMetric?.significant===true?'(significant)':exp.primaryMetric?.significant===false?'(not significant)':'(data maturing)'}</span></div>`:''}
+            </div>
+            ${exp.rolloutPct!==null?`<div class="ec-stat"><span class="ec-stat-label">Rollout</span><span class="ec-stat-value">${exp.rolloutPct}%</span></div>`:''}
+            ${exp.exposureN!==null?`<div class="ec-stat"><span class="ec-stat-label">Exposure</span><span class="ec-stat-value tabular">${fmt.n(exp.exposureN)}</span></div>`:''}
+            <div class="ec-stat"><span class="ec-stat-label">Guardrails</span><span class="ec-stat-value" style="color:${grColor[exp.guardrailState]}">${gr[exp.guardrailState]}</span></div>
+          </div>
+          ${exp.secondaryMetrics?.length?`<details class="ec-secondary"><summary>Secondary metrics (${exp.secondaryMetrics.length}) <span aria-hidden="true">▼</span></summary>
+            <div class="ec-sec-grid">${exp.secondaryMetrics.map(m=>{const sl=m.observedLift; const sc=sl===null?'':m.direction==='up'?'lift-up':m.direction==='down'?'lift-down':'lift-flat'; return `<div class="ec-sec-stat"><span class="ec-stat-label">${m.label}</span>${sl!==null?`<span class="ec-lift ${sc}" style="font-size:.875rem">${sl>=0?'+':''}${fmt.pct(sl)} <span class="ec-sig">${m.significant===true?'(sig.)':m.significant===false?'(n.s.)':''}</span></span>`:'<span class="ec-stat-value" style="color:var(--text-3)">—</span>'}</div>`}).join('')}</div>
+          </details>`:''}
+          ${exp.status==='completed'&&exp.learnings?`<div class="ec-learnings">
+            <span class="block-label">What we learned</span>
+            <p class="ec-learn-text">${exp.learnings}</p>
+            ${exp.outcome?`<span class="block-label" style="margin-top:.75rem">What changed</span><p class="ec-learn-text">${exp.outcome}</p>`:''}
+          </div>`:''}
+          ${exp.status==='live'&&exp.maturity==='decision-ready'?`<div class="ec-decision-prompt">This experiment has sufficient data for a decision.</div>`:''}
+        </article>`}).join('')
+
+  return `<div class="page">
+    <header class="page-header"><h1 class="page-title">Experiments</h1><p class="page-subtitle">The team's living experiment operating surface and learning history.</p></header>
+    <nav class="tab-bar" role="tablist" aria-label="Experiment status">${tabs}</nav>
+    <div class="exp-list">${cards}</div>
+  </div>`
+}
+
+// ─── Router ───────────────────────────────────────────────────
+const VIEWS = ['overview','members','activities','experiments']
+let _data = null, _theme = localStorage.getItem('mmc-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
+let _route = location.hash.replace(/^#\/?/,'').split('/')[0]||'overview'
+if(!VIEWS.includes(_route))_route='overview'
+let _membersTab='journey', _activitiesTab='supply', _experimentsTab='live'
+
+function getRoute(){ return _route }
+function navigate(route) {
+  _route = VIEWS.includes(route) ? route : 'overview'
+  location.hash = '#/'+_route
+  render()
+}
+
+function toggleTheme() {
+  _theme = _theme==='light'?'dark':'light'
+  document.documentElement.setAttribute('data-theme',_theme)
+  localStorage.setItem('mmc-theme',_theme)
+  renderNav(_route, navigate, _theme, toggleTheme)
+}
+
+window.addEventListener('hashchange', () => {
+  const r = location.hash.replace(/^#\/?/,'').split('/')[0]||'overview'
+  _route = VIEWS.includes(r)?r:'overview'
+  render()
+})
+
+function render() {
+  if(!_data){document.getElementById('app-view').innerHTML='<div class="page"><div class="skeleton" style="height:200px;margin-top:2rem;border-radius:12px"></div></div>'; return}
+  const view = document.getElementById('app-view')
+  let html = ''
+  if(_route==='overview')    html = renderOverview(_data)
+  else if(_route==='members')     html = renderMembers(_data, _membersTab)
+  else if(_route==='activities')  html = renderActivities(_data, _activitiesTab)
+  else if(_route==='experiments') html = renderExperiments(_data, _experimentsTab)
+  view.innerHTML = html
+  // Wire tab buttons
+  view.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
+    if(_route==='members')     { _membersTab = btn.dataset.tab; view.innerHTML = renderMembers(_data, _membersTab); rewire(view) }
+    if(_route==='activities')  { _activitiesTab = btn.dataset.tab; view.innerHTML = renderActivities(_data, _activitiesTab); rewire(view) }
+    if(_route==='experiments') { _experimentsTab = btn.dataset.tab; view.innerHTML = renderExperiments(_data, _experimentsTab); rewire(view) }
+  }))
+  rewire(view)
+}
+
+function rewire(root) {
+  root.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => navigate(el.dataset.nav))
+    el.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); navigate(el.dataset.nav) } })
+  })
+  root.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
+    if(_route==='members')     { _membersTab = btn.dataset.tab; render() }
+    if(_route==='activities')  { _activitiesTab = btn.dataset.tab; render() }
+    if(_route==='experiments') { _experimentsTab = btn.dataset.tab; render() }
+  }))
+}
+
+// ─── Boot ─────────────────────────────────────────────────────
+try {
+  document.documentElement.setAttribute('data-theme', _theme)
+  renderNav(_route, navigate, _theme, toggleTheme)
+  render()
+} catch(bootErr) {
+  console.error('Boot error:', bootErr)
+  var av = document.getElementById('app-view')
+  if (av) av.innerHTML = '<div class="page"><div class="section-error" style="border:2px solid var(--red);padding:1.5rem"><strong>Startup error:</strong><br><code>' + (bootErr && bootErr.message) + '</code><br><br>Check browser DevTools console for details.</div></div>'
+}
+
+loadAll().then(function(d) {
+  _data = d
+  if(d.manifest && d.manifest.source==='synthetic') {
+    var b = document.getElementById('synthetic-banner')
+    if (b) b.classList.add('visible')
+    var sp = document.getElementById('banner-spacer')
+    if (sp) sp.style.height = '36px'
+  }
+  render()
+}).catch(function(err) {
+  console.error('Data load error:', err)
+  var av = document.getElementById('app-view')
+  if (av) av.innerHTML = '<div class="page"><div class="section-error"><strong>Failed to load dashboard data.</strong><br>Ensure the data files exist in <code>public/data/</code> and you are using a local static server, not opening the file directly via file://. Run: <code>python3 -m http.server 8080</code></div></div>'
+})
+</script>
 </body>
 </html>
