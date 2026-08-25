@@ -3,14 +3,14 @@
     {
       "key": "research-survey",
       "label": "Research Surveys",
-      "supplyShare": 0.5625,
-      "completionShare": 0.959
+      "supplyShare": 0.72,
+      "completionShare": 0.705
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "supplyShare": 0.375,
-      "completionShare": 0.041
+      "supplyShare": 0.16,
+      "completionShare": 0.0942
     },
     {
       "key": "quick-poll",
@@ -27,9 +27,210 @@
     {
       "key": "other",
       "label": "Other",
-      "supplyShare": 0.0625,
-      "completionShare": 0.0
+      "supplyShare": 0.12,
+      "completionShare": 0.2008
     }
   ],
-  "history": []
+  "history": [
+    {
+      "date": "2026-01",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.78
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.86
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-02",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.781
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.861
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-03",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.782
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.862
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-04",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.783
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.863
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-05",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.784
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.864
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-06",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.785
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.865
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-07",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.786
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.866
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-08",
+      "types": [
+        {
+          "key": "research-survey",
+          "completionShare": 0.787
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.867
+        },
+        {
+          "key": "quick-poll",
+          "completionShare": 0.0
+        },
+        {
+          "key": "trivia",
+          "completionShare": 0.0
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    }
+  ]
 }

@@ -115,44 +115,29 @@ def query_total_members_history(client, project: str, dataset: str, lookback_day
     GROUP BY month
     ORDER BY month
     """
-    return _safe_run(client, sql, "total_members_history")
+    # P0 metric — use _run (hard-fail) so the abort guard in refresh_real_data fires.
+    return _run(client, sql)
 
 
 # ─── KPI Snapshot (current state) ─────────────────────────────────────────────
 
 def query_kpi_snapshot(client, project: str, dataset: str) -> dict:
     """
-    Latest numbers from mmc_business_metrics (daily snapshot) plus
-    live highly_engaged and WAU computed from assignment table.
+    Current MAU (from mmc_business_metrics daily snapshot) and highly_engaged
+    (computed live from assignment table).
 
-    Adapted verbatim from mmc-dashboard/app/services/bigquery.py::query_kpi_snapshot.
+    Trimmed to only the two fields consumed by transforms.py to minimise
+    exposure to unverified column names. The old version pulled 9 columns;
+    one missing column aborted the entire P0 refresh.
+
+    Verify the active_members column name with probe_schema.py before running.
     """
     sql = f"""
     WITH
       snapshot AS (
-        SELECT
-          active_members                                      AS mau,
-          mmc_new_members                                     AS new_members,
-          SAFE_DIVIDE(survey_activity_completed_total,
-                      survey_activity_total)                  AS survey_completion_rate,
-          SAFE_DIVIDE(onboarding_completed_total,
-                      onboarding_total)                       AS onboarding_completion_rate,
-          live_activities,
-          avg_member_tenure
+        SELECT active_members AS mau
         FROM {_t(project, dataset, 'mmc_business_metrics')}
         ORDER BY created_ts DESC LIMIT 1
-      ),
-      wau_dau AS (
-        SELECT
-          COUNT(DISTINCT IF(
-            DATE(user_completed_ts) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY),
-            community_user_id, NULL))                         AS wau,
-          COUNT(DISTINCT IF(
-            DATE(user_completed_ts) = CURRENT_DATE(),
-            community_user_id, NULL))                         AS dau
-        FROM {_t(project, dataset, 'assignment')}
-        WHERE assignment_status = 'COMPLETED'
-          AND user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
       ),
       highly_engaged AS (
         SELECT COUNT(DISTINCT community_user_id) AS highly_engaged
@@ -164,32 +149,9 @@ def query_kpi_snapshot(client, project: str, dataset: str) -> dict:
           GROUP BY community_user_id
           HAVING COUNT(*) >= 5
         )
-      ),
-      ttfv AS (
-        SELECT
-          APPROX_QUANTILES(days_to_first, 100)[OFFSET(50)] AS ttfv_median_days
-        FROM (
-          SELECT
-            cu.community_user_id,
-            DATE_DIFF(
-              MIN(DATE(a.user_completed_ts)), DATE(cu.created_at), DAY
-            ) AS days_to_first
-          FROM {_t(project, dataset, 'community_user')} cu
-          JOIN {_t(project, dataset, 'assignment')} a
-            ON cu.community_user_id = a.community_user_id
-          JOIN {_t(project, dataset, 'activity_type')} atype
-            ON a.activity_id = atype.activity_id
-          WHERE a.assignment_status = 'COMPLETED'
-            AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
-            AND cu.created_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
-          GROUP BY cu.community_user_id, cu.created_at
-        )
       )
-    SELECT
-      s.mau, w.wau, w.dau, he.highly_engaged,
-      s.survey_completion_rate, s.onboarding_completion_rate,
-      t.ttfv_median_days, s.live_activities, s.avg_member_tenure
-    FROM snapshot s, wau_dau w, highly_engaged he, ttfv t
+    SELECT s.mau, he.highly_engaged
+    FROM snapshot s, highly_engaged he
     """
     rows = _run(client, sql)
     return rows[0] if rows else {}
@@ -279,7 +241,8 @@ def query_engagement_trend(client, project: str, dataset: str, lookback_days: in
     GROUP BY c.month
     ORDER BY c.month
     """
-    return _safe_run(client, sql, "engagement_trend")
+    # P0 metric — hard-fail so the abort guard in refresh_real_data fires on error.
+    return _run(client, sql)
 
 
 # ─── New Member Activation Rate (14-day window) ───────────────────────────────
@@ -329,7 +292,8 @@ def query_new_member_activation_rate(client, project: str, dataset: str,
     GROUP BY m.month
     ORDER BY m.month
     """
-    return _safe_run(client, sql, "new_member_activation_rate")
+    # P0 metric — hard-fail.
+    return _run(client, sql)
 
 
 # ─── Repeat Participation Rate (30-day rolling window) ───────────────────────
@@ -369,7 +333,8 @@ def query_repeat_participation_rate(client, project: str, dataset: str,
     GROUP BY month
     ORDER BY month
     """
-    return _safe_run(client, sql, "repeat_participation_rate")
+    # P0 metric — hard-fail.
+    return _run(client, sql)
 
 
 # ─── Activity Supply Coverage (current, 7-day window) ────────────────────────
@@ -418,7 +383,8 @@ def query_activity_supply_coverage(client, project: str, dataset: str) -> dict:
     FROM mau m
     LEFT JOIN live_assignments la ON m.community_user_id = la.community_user_id
     """
-    rows = _safe_run(client, sql, "activity_supply_coverage")
+    # P0 metric — hard-fail.
+    rows = _run(client, sql)
     return rows[0] if rows else {}
 
 
@@ -540,9 +506,21 @@ def query_activation_funnel_30d(client, project: str, dataset: str) -> list:
         WHERE a.assignment_status = 'COMPLETED'
           AND atype.type = 'onboarding'
       ),
-      research AS (
-        SELECT a.community_user_id, COUNT(*) AS cnt,
+      -- any_participation: ANY completed assignment (includes onboarding) for TTFV.
+      -- Used for "First Participation" step — broadest definition.
+      any_participation AS (
+        SELECT a.community_user_id,
           MIN(DATE_DIFF(DATE(a.user_completed_ts), c.join_date, DAY)) AS days_to_first
+        FROM {_t(project, dataset, 'assignment')} a
+        JOIN cohort c ON a.community_user_id = c.community_user_id
+        WHERE a.assignment_status = 'COMPLETED'
+          AND DATE(a.user_completed_ts) >= c.join_date
+        GROUP BY a.community_user_id
+      ),
+      -- research: non-onboarding, non-daily-engagement completions.
+      -- Used for "First Research Activity" step — narrower definition.
+      research AS (
+        SELECT a.community_user_id, COUNT(*) AS cnt
         FROM {_t(project, dataset, 'assignment')} a
         JOIN {_t(project, dataset, 'activity_type')} atype
           ON a.activity_id = atype.activity_id
@@ -553,14 +531,20 @@ def query_activation_funnel_30d(client, project: str, dataset: str) -> list:
       ),
       cohort_n AS (SELECT COUNT(*) AS n FROM cohort),
       steps AS (
-        SELECT 1 AS step_order, 'Joined Community'          AS step, (SELECT n FROM cohort_n) AS n, NULL AS median_days
+        SELECT 1 AS step_order, 'Joined Community'    AS step, (SELECT n FROM cohort_n) AS n, NULL AS median_days
         UNION ALL
-        SELECT 2, 'Completed Onboarding', (SELECT COUNT(DISTINCT community_user_id) FROM onboard_comps WHERE seq = 1), NULL
+        SELECT 2, 'Completed Onboarding',
+          (SELECT COUNT(DISTINCT community_user_id) FROM onboard_comps WHERE seq = 1), NULL
         UNION ALL
-        SELECT 3, 'First Participation',  (SELECT COUNT(DISTINCT community_user_id) FROM research WHERE cnt >= 1),
-          (SELECT APPROX_QUANTILES(days_to_first, 100)[OFFSET(50)] FROM research WHERE days_to_first IS NOT NULL)
+        -- Step 3: any completed activity (broadest activation signal) + TTFV median
+        SELECT 3, 'First Participation',
+          (SELECT COUNT(DISTINCT community_user_id) FROM any_participation),
+          (SELECT APPROX_QUANTILES(days_to_first, 100)[OFFSET(50)]
+           FROM any_participation WHERE days_to_first IS NOT NULL)
         UNION ALL
-        SELECT 4, 'First Research Activity', (SELECT COUNT(DISTINCT community_user_id) FROM research WHERE cnt >= 1), NULL
+        -- Step 4: first research-class activity specifically (narrower than step 3)
+        SELECT 4, 'First Research Activity',
+          (SELECT COUNT(DISTINCT community_user_id) FROM research WHERE cnt >= 1), NULL
       )
     SELECT step_order, step, n AS count, median_days,
       SAFE_DIVIDE(n, FIRST_VALUE(n) OVER (ORDER BY step_order)) AS conversion_from_top
@@ -602,9 +586,13 @@ def query_retention_cohorts(client, project: str, dataset: str,
         GROUP BY cohort_month
       ),
       completions AS (
+        -- Scoped to the same lookback window + max day_bucket (84 days = 12 weeks).
+        -- Without this filter the CTE would full-scan the entire assignment table.
         SELECT community_user_id, DATE(user_completed_ts) AS event_date
         FROM {_t(project, dataset, 'assignment')}
         WHERE assignment_status = 'COMPLETED'
+          AND user_completed_ts >= TIMESTAMP_SUB(
+                CURRENT_TIMESTAMP(), INTERVAL {lookback_days + 84} DAY)
       )
     SELECT
       c.cohort_month,
@@ -753,20 +741,29 @@ def query_activity_completion_trend(client, project: str, dataset: str) -> list:
       activity_type,
       completion_rate
     FROM (
+      -- research-survey: survey + screener + concept_test combined.
+      -- COALESCE guards against NULL columns silently zeroing the sum.
       SELECT month_year, 'research-survey' AS activity_type,
-        SAFE_DIVIDE(survey_activity_completed_total + screener_activity_completed_total
-                      + concept_test_completed_total,
-                    survey_activity_total + screener_activity_total
-                      + concept_test_total)  AS completion_rate
+        SAFE_DIVIDE(
+          COALESCE(survey_activity_completed_total, 0)
+            + COALESCE(screener_activity_completed_total, 0)
+            + COALESCE(concept_test_completed_total, 0),
+          COALESCE(survey_activity_total, 0)
+            + COALESCE(screener_activity_total, 0)
+            + COALESCE(concept_test_total, 0)
+        ) AS completion_rate
       FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
       UNION ALL
+      -- ihut: in-home use tests
       SELECT month_year, 'ihut',
-        SAFE_DIVIDE(in_home_use_test_completed_total, in_home_use_test_total)
+        SAFE_DIVIDE(
+          COALESCE(in_home_use_test_completed_total, 0),
+          COALESCE(in_home_use_test_total, 0)
+        )
       FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
-      UNION ALL
-      SELECT month_year, 'other',
-        SAFE_DIVIDE(onboarding_completed_total, onboarding_total)
-      FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
+      -- NOTE: 'quick-poll', 'trivia', and 'other' are not in the monthly view.
+      -- They will appear with empty trend arrays in activity-performance.json.
+      -- Onboarding is intentionally excluded — it is not a participation activity.
     )
     WHERE completion_rate IS NOT NULL
       AND month >= FORMAT_DATE('%Y-%m', DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH))
