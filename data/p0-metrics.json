@@ -1,9 +1,9 @@
 {
   "totalMembers": {
-    "current": 195356,
+    "current": 195449,
     "prior": 163198,
-    "change": 32158,
-    "changePct": 0.197,
+    "change": 32251,
+    "changePct": 0.1976,
     "direction": "up",
     "history": [
       {
@@ -48,7 +48,7 @@
       },
       {
         "date": "2026-08",
-        "value": 195356
+        "value": 195449
       }
     ]
   },
@@ -85,15 +85,15 @@
       },
       {
         "date": "2026-08",
-        "value": 31638
+        "value": 31681
       }
     ]
   },
   "highlyEngagedMembers": {
-    "current": 10641,
+    "current": 10650,
     "prior": 9659,
-    "change": 982,
-    "changePct": 0.1017,
+    "change": 991,
+    "changePct": 0.1026,
     "direction": "up",
     "history": [
       {
@@ -122,7 +122,7 @@
       },
       {
         "date": "2026-08",
-        "value": 9491
+        "value": 9518
       }
     ]
   },
@@ -205,8 +205,8 @@
     ]
   },
   "activitySupplyCoverage": {
-    "current": 0.7903,
-    "prior": 0.7903,
+    "current": 0.8353,
+    "prior": 0.8353,
     "change": 0.0,
     "changePct": 0.0,
     "direction": "flat",

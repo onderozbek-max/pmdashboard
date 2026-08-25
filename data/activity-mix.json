@@ -3,25 +3,25 @@
     {
       "key": "survey-long",
       "label": "Long Research Surveys",
-      "supplyShare": 0.55,
-      "completionShare": 0.4537
+      "supplyShare": 0.5909,
+      "completionShare": 0.4749
     },
     {
       "key": "survey-short",
       "label": "Short Research Surveys",
-      "supplyShare": 0.1,
-      "completionShare": 0.5072
+      "supplyShare": 0.0909,
+      "completionShare": 0.4876
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "supplyShare": 0.3,
-      "completionShare": 0.0391
+      "supplyShare": 0.2727,
+      "completionShare": 0.0375
     },
     {
       "key": "other",
       "label": "Other",
-      "supplyShare": 0.05,
+      "supplyShare": 0.0455,
       "completionShare": 0.0
     }
   ],

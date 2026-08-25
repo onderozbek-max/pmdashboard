@@ -2,23 +2,23 @@
   "stages": [
     {
       "stage": "Joined",
-      "count": 195356
+      "count": 195449
     },
     {
       "stage": "Activated",
-      "count": 118481
+      "count": 118549
     },
     {
       "stage": "Participated",
-      "count": 66141
+      "count": 66156
     },
     {
       "stage": "Repeated",
-      "count": 35791
+      "count": 35818
     },
     {
       "stage": "Highly Engaged",
-      "count": 10641
+      "count": 10650
     }
   ],
   "mauHistory": [
@@ -48,7 +48,7 @@
     },
     {
       "date": "2026-08",
-      "value": 31638
+      "value": 31681
     }
   ]
 }

@@ -3,19 +3,19 @@
     {
       "key": "survey-long",
       "label": "Long Research Surveys",
-      "totalAvailable": 174957,
-      "totalCompleted": 5048,
-      "completionRate": 0.0289,
-      "avgCompletionRate7d": 0.0289,
+      "totalAvailable": 212023,
+      "totalCompleted": 5514,
+      "completionRate": 0.026,
+      "avgCompletionRate7d": 0.026,
       "trend": []
     },
     {
       "key": "survey-short",
       "label": "Short Research Surveys",
       "totalAvailable": 41120,
-      "totalCompleted": 5644,
-      "completionRate": 0.1373,
-      "avgCompletionRate7d": 0.1373,
+      "totalCompleted": 5661,
+      "completionRate": 0.1377,
+      "avgCompletionRate7d": 0.1377,
       "trend": []
     },
     {
