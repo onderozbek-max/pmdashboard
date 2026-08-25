@@ -1129,7 +1129,7 @@ function renderActivities(data, activeTab='supply') {
         </tbody>
       </table>
     </div>
-    <p class="perf-note" style="margin-top:.75rem">Completion rate = completed ÷ available. Quick Polls and Trivia show lower rates due to higher supply volume.</p>` : `<div class="section-error">Performance data unavailable</div>`
+    <p class="perf-note" style="margin-top:.75rem">Completion rate = completed ÷ assigned. Long surveys = full research studies; Short surveys = screeners.</p>` : `<div class="section-error">Performance data unavailable</div>`
 
   const tabs = [{id:'supply',label:'Activity Supply'},{id:'mix',label:'Activity Mix'},{id:'performance',label:'Performance by Type'}]
   const content = {supply:supplyHtml, mix:mixHtml, performance:perfHtml}

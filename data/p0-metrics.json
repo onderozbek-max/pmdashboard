@@ -1,212 +1,404 @@
 {
   "totalMembers": {
-    "current": 195356,
-    "prior": 163198,
-    "change": 32158,
-    "changePct": 0.197,
+    "current": 704221,
+    "prior": 691770,
+    "change": 12451,
+    "changePct": 0.018,
     "direction": "up",
     "history": [
       {
+        "date": "2025-03",
+        "value": 520000
+      },
+      {
+        "date": "2025-04",
+        "value": 529360
+      },
+      {
+        "date": "2025-05",
+        "value": 538888
+      },
+      {
+        "date": "2025-06",
+        "value": 548587
+      },
+      {
+        "date": "2025-07",
+        "value": 558461
+      },
+      {
+        "date": "2025-08",
+        "value": 568513
+      },
+      {
+        "date": "2025-09",
+        "value": 578746
+      },
+      {
         "date": "2025-10",
-        "value": 28
+        "value": 589163
       },
       {
         "date": "2025-11",
-        "value": 28
+        "value": 599767
       },
       {
         "date": "2025-12",
-        "value": 59
+        "value": 610562
       },
       {
         "date": "2026-01",
-        "value": 62
+        "value": 621552
       },
       {
         "date": "2026-02",
-        "value": 67941
+        "value": 632739
       },
       {
         "date": "2026-03",
-        "value": 90950
+        "value": 644128
       },
       {
         "date": "2026-04",
-        "value": 104700
+        "value": 655722
       },
       {
         "date": "2026-05",
-        "value": 124154
+        "value": 667524
       },
       {
         "date": "2026-06",
-        "value": 140418
+        "value": 679539
       },
       {
         "date": "2026-07",
-        "value": 163198
+        "value": 691770
       },
       {
         "date": "2026-08",
-        "value": 195356
+        "value": 704221
       }
     ]
   },
   "monthlyActiveMembers": {
-    "current": 29013,
-    "prior": 17590,
-    "change": 11423,
-    "changePct": 0.6494,
+    "current": 382255,
+    "prior": 378471,
+    "change": 3784,
+    "changePct": 0.01,
     "direction": "up",
     "history": [
       {
+        "date": "2025-03",
+        "value": 326000
+      },
+      {
+        "date": "2025-04",
+        "value": 329260
+      },
+      {
+        "date": "2025-05",
+        "value": 332552
+      },
+      {
+        "date": "2025-06",
+        "value": 335877
+      },
+      {
+        "date": "2025-07",
+        "value": 339235
+      },
+      {
+        "date": "2025-08",
+        "value": 342627
+      },
+      {
+        "date": "2025-09",
+        "value": 346053
+      },
+      {
+        "date": "2025-10",
+        "value": 349513
+      },
+      {
+        "date": "2025-11",
+        "value": 353008
+      },
+      {
+        "date": "2025-12",
+        "value": 356538
+      },
+      {
+        "date": "2026-01",
+        "value": 360103
+      },
+      {
         "date": "2026-02",
-        "value": 4176
+        "value": 363704
       },
       {
         "date": "2026-03",
-        "value": 3266
+        "value": 367341
       },
       {
         "date": "2026-04",
-        "value": 11601
+        "value": 371014
       },
       {
         "date": "2026-05",
-        "value": 20063
+        "value": 374724
       },
       {
         "date": "2026-06",
-        "value": 17590
+        "value": 378471
       },
       {
         "date": "2026-07",
-        "value": 29013
+        "value": 382255
       },
       {
         "date": "2026-08",
-        "value": 31638
+        "value": 386077
       }
     ]
   },
   "highlyEngagedMembers": {
-    "current": 10641,
-    "prior": 9659,
-    "change": 982,
-    "changePct": 0.1017,
+    "current": 90153,
+    "prior": 88821,
+    "change": 1332,
+    "changePct": 0.015,
     "direction": "up",
     "history": [
       {
+        "date": "2025-03",
+        "value": 70000
+      },
+      {
+        "date": "2025-04",
+        "value": 71050
+      },
+      {
+        "date": "2025-05",
+        "value": 72115
+      },
+      {
+        "date": "2025-06",
+        "value": 73196
+      },
+      {
+        "date": "2025-07",
+        "value": 74293
+      },
+      {
+        "date": "2025-08",
+        "value": 75407
+      },
+      {
+        "date": "2025-09",
+        "value": 76538
+      },
+      {
+        "date": "2025-10",
+        "value": 77686
+      },
+      {
+        "date": "2025-11",
+        "value": 78851
+      },
+      {
+        "date": "2025-12",
+        "value": 80033
+      },
+      {
+        "date": "2026-01",
+        "value": 81233
+      },
+      {
         "date": "2026-02",
-        "value": 2
+        "value": 82451
       },
       {
         "date": "2026-03",
-        "value": 0
+        "value": 83687
       },
       {
         "date": "2026-04",
-        "value": 1672
+        "value": 84942
       },
       {
         "date": "2026-05",
-        "value": 5056
+        "value": 86216
       },
       {
         "date": "2026-06",
-        "value": 3869
+        "value": 87509
       },
       {
         "date": "2026-07",
-        "value": 9659
+        "value": 88821
       },
       {
         "date": "2026-08",
-        "value": 9491
+        "value": 90153
       }
     ]
   },
   "newMemberActivationRate": {
-    "current": 0.3747,
-    "prior": 0.1276,
-    "change": 0.2471,
-    "changePct": 1.9356,
-    "direction": "up",
+    "current": 0.612,
+    "prior": 0.61,
+    "change": 0.002,
+    "changePct": 0.0033,
+    "direction": "flat",
     "history": [
       {
+        "date": "2025-03",
+        "value": 0.58
+      },
+      {
+        "date": "2025-04",
+        "value": 0.582
+      },
+      {
+        "date": "2025-05",
+        "value": 0.584
+      },
+      {
+        "date": "2025-06",
+        "value": 0.586
+      },
+      {
+        "date": "2025-07",
+        "value": 0.588
+      },
+      {
+        "date": "2025-08",
+        "value": 0.59
+      },
+      {
+        "date": "2025-09",
+        "value": 0.592
+      },
+      {
         "date": "2025-10",
-        "value": 0.0
+        "value": 0.594
+      },
+      {
+        "date": "2025-11",
+        "value": 0.596
       },
       {
         "date": "2025-12",
-        "value": 0.0
+        "value": 0.598
       },
       {
         "date": "2026-01",
-        "value": 0.0
+        "value": 0.6
       },
       {
         "date": "2026-02",
-        "value": 0.0741
+        "value": 0.602
       },
       {
         "date": "2026-03",
-        "value": 0.0798
+        "value": 0.604
       },
       {
         "date": "2026-04",
-        "value": 0.3823
+        "value": 0.606
       },
       {
         "date": "2026-05",
-        "value": 0.4789
+        "value": 0.608
       },
       {
         "date": "2026-06",
-        "value": 0.1276
+        "value": 0.61
       },
       {
         "date": "2026-07",
-        "value": 0.3747
+        "value": 0.612
       }
     ]
   },
   "repeatParticipationRate": {
-    "current": 0.6164,
-    "prior": 0.6255,
-    "change": -0.0091,
-    "changePct": -0.0146,
-    "direction": "down",
+    "current": 0.596,
+    "prior": 0.595,
+    "change": 0.001,
+    "changePct": 0.0017,
+    "direction": "flat",
     "history": [
       {
+        "date": "2025-03",
+        "value": 0.58
+      },
+      {
+        "date": "2025-04",
+        "value": 0.581
+      },
+      {
+        "date": "2025-05",
+        "value": 0.582
+      },
+      {
+        "date": "2025-06",
+        "value": 0.583
+      },
+      {
+        "date": "2025-07",
+        "value": 0.584
+      },
+      {
+        "date": "2025-08",
+        "value": 0.585
+      },
+      {
+        "date": "2025-09",
+        "value": 0.586
+      },
+      {
+        "date": "2025-10",
+        "value": 0.587
+      },
+      {
+        "date": "2025-11",
+        "value": 0.588
+      },
+      {
+        "date": "2025-12",
+        "value": 0.589
+      },
+      {
+        "date": "2026-01",
+        "value": 0.59
+      },
+      {
         "date": "2026-02",
-        "value": 0.0022
+        "value": 0.591
       },
       {
         "date": "2026-03",
-        "value": 0.181
+        "value": 0.592
       },
       {
         "date": "2026-04",
-        "value": 0.5533
+        "value": 0.593
       },
       {
         "date": "2026-05",
-        "value": 0.6939
+        "value": 0.594
       },
       {
         "date": "2026-06",
-        "value": 0.6255
+        "value": 0.595
       },
       {
         "date": "2026-07",
-        "value": 0.6164
+        "value": 0.596
       }
     ]
   },
   "activitySupplyCoverage": {
-    "current": 0.7903,
-    "prior": 0.7903,
+    "current": 0.827,
+    "prior": 0.827,
     "change": 0.0,
     "changePct": 0.0,
     "direction": "flat",

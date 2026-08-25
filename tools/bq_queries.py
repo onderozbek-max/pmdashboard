@@ -693,26 +693,33 @@ def query_participation_depth_history(client, project: str, dataset: str,
 # ─── Activity Type Mix and Performance ───────────────────────────────────────
 
 _ACTIVITY_TYPE_MAP = {
-    # old schema type → dashboard key
-    'survey':                 'research-survey',
-    'screener':               'research-survey',  # screeners are research
-    'concept_test':           'research-survey',  # concept tests are research
-    'concept test':           'research-survey',
+    # activity_type.type value → dashboard key
+    #
+    # Long vs short split uses activity_type.type:
+    #   'survey'       → full research study (15-30 min)  → survey-long
+    #   'concept_test' → concept evaluation (similar depth) → survey-long
+    #   'screener'     → short pre-qualification (3-10 questions) → survey-short
+    #
+    # The activity table has no question_count or duration column (confirmed via
+    # probe_schema --discover-survey-signal). activity_type.type is the most
+    # principled available signal. Refine to activity.points threshold if needed.
+    'survey':                 'survey-long',
+    'concept_test':           'survey-long',
+    'concept test':           'survey-long',
+    'screener':               'survey-short',
     'in_home_use_test':       'ihut',
     'in home use test':       'ihut',
-    'daily_engagement':       'other',  # quick-poll/trivia subtypes not in schema
+    'daily_engagement':       'other',
     'daily engagement':       'other',
-    'onboarding':             None,     # excluded from participation mix
+    'onboarding':             None,   # excluded from participation mix
     'central_location_test':  'other',
 }
 
 DASHBOARD_TYPES = [
-    {'key': 'research-survey', 'label': 'Research Surveys'},
-    {'key': 'ihut',            'label': 'IHUTs'},
-    {'key': 'other',           'label': 'Other'},
-    # 'quick-poll' and 'trivia' removed — not yet in schema.
-    # Long vs short survey split requires schema clarification (e.g. activity.points
-    # threshold or a new activity_type.subtype column). Add once confirmed.
+    {'key': 'survey-long',  'label': 'Long Research Surveys'},
+    {'key': 'survey-short', 'label': 'Short Research Surveys'},
+    {'key': 'ihut',         'label': 'IHUTs'},
+    {'key': 'other',        'label': 'Other'},
 ]
 
 
@@ -761,17 +768,22 @@ def query_activity_completion_trend(client, project: str, dataset: str) -> list:
       activity_type,
       completion_rate
     FROM (
-      -- research-survey: survey + screener + concept_test combined.
-      -- COALESCE guards against NULL columns silently zeroing the sum.
-      SELECT month_year, 'research-survey' AS activity_type,
+      -- survey-long: full research surveys + concept tests (same depth)
+      SELECT month_year, 'survey-long' AS activity_type,
         SAFE_DIVIDE(
           COALESCE(survey_activity_completed_total, 0)
-            + COALESCE(screener_activity_completed_total, 0)
             + COALESCE(concept_test_completed_total, 0),
           COALESCE(survey_activity_total, 0)
-            + COALESCE(screener_activity_total, 0)
             + COALESCE(concept_test_total, 0)
         ) AS completion_rate
+      FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
+      UNION ALL
+      -- survey-short: screeners (short pre-qualification surveys)
+      SELECT month_year, 'survey-short',
+        SAFE_DIVIDE(
+          COALESCE(screener_activity_completed_total, 0),
+          COALESCE(screener_activity_total, 0)
+        )
       FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
       UNION ALL
       -- ihut: in-home use tests
@@ -781,9 +793,8 @@ def query_activity_completion_trend(client, project: str, dataset: str) -> list:
           COALESCE(in_home_use_test_total, 0)
         )
       FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
-      -- NOTE: 'quick-poll', 'trivia', and 'other' are not in the monthly view.
+      -- 'other' and onboarding are not in the monthly view.
       -- They will appear with empty trend arrays in activity-performance.json.
-      -- Onboarding is intentionally excluded — it is not a participation activity.
     )
     WHERE completion_rate IS NOT NULL
       AND month >= FORMAT_DATE('%Y-%m', DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH))

@@ -272,16 +272,20 @@ def _get_fixture() -> dict[str, Any]:
             for i, m in enumerate(months_18)
         ],
         "activity_type_stats": [
-            {"raw_type": "survey",              "live_count": 320, "assigned_members": 80000, "completed_members": 64000, "completion_rate": 0.80},
-            {"raw_type": "in_home_use_test",    "live_count": 80,  "assigned_members": 12000, "completed_members": 10560, "completion_rate": 0.88},
-            {"raw_type": "screener",            "live_count": 40,  "assigned_members": 20000, "completed_members": 15000, "completion_rate": 0.75},
-            {"raw_type": "daily_engagement",    "live_count": 60,  "assigned_members": 30000, "completed_members": 22500, "completion_rate": 0.75},
+            {"raw_type": "survey",           "live_count": 280, "assigned_members": 75000, "completed_members": 60000, "completion_rate": 0.80},
+            {"raw_type": "screener",         "live_count": 90,  "assigned_members": 40000, "completed_members": 32000, "completion_rate": 0.80},
+            {"raw_type": "in_home_use_test", "live_count": 80,  "assigned_members": 12000, "completed_members": 10560, "completion_rate": 0.88},
+            {"raw_type": "concept_test",     "live_count": 30,  "assigned_members": 10000, "completed_members":  7500, "completion_rate": 0.75},
+            {"raw_type": "daily_engagement", "live_count": 60,  "assigned_members": 30000, "completed_members": 22500, "completion_rate": 0.75},
         ],
         "activity_completion_trend": [
-            {"month": m, "activity_type": "research-survey", "completion_rate": 0.78 + i * 0.001}
+            {"month": m, "activity_type": "survey-long",  "completion_rate": 0.78 + i * 0.001}
             for i, m in enumerate(months_18[-8:])
         ] + [
-            {"month": m, "activity_type": "ihut", "completion_rate": 0.86 + i * 0.001}
+            {"month": m, "activity_type": "survey-short", "completion_rate": 0.82 + i * 0.001}
+            for i, m in enumerate(months_18[-8:])
+        ] + [
+            {"month": m, "activity_type": "ihut",         "completion_rate": 0.86 + i * 0.001}
             for i, m in enumerate(months_18[-8:])
         ],
     }
