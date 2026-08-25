@@ -1,41 +1,43 @@
 {
-  "cohortLabel": "2026-08",
+  "cohortLabel": "2026-07",
   "steps": [
     {
       "step": "Joined Community",
-      "count": 17614,
-      "conversionFromTop": 1,
-      "conversionFromPrior": 1
+      "count": 45097,
+      "conversionFromTop": 1.0,
+      "conversionFromPrior": 1.0
     },
     {
       "step": "Completed Join Flow",
-      "count": 14620,
-      "conversionFromTop": 0.83,
-      "conversionFromPrior": 0.83
+      "count": null,
+      "conversionFromTop": null,
+      "conversionFromPrior": null,
+      "unavailable": true,
+      "reason": "join_flow table not in schema"
     },
     {
       "step": "Completed Onboarding",
-      "count": 11801,
-      "conversionFromTop": 0.67,
-      "conversionFromPrior": 0.81
+      "count": 26443,
+      "conversionFromTop": 0.5864,
+      "conversionFromPrior": null
     },
     {
       "step": "First Participation",
-      "count": 9813,
-      "conversionFromTop": 0.557,
-      "conversionFromPrior": 0.832,
-      "medianDaysFromJoin": 4.2
+      "count": 17348,
+      "conversionFromTop": 0.3847,
+      "conversionFromPrior": 0.6561,
+      "medianDaysFromJoin": null
     },
     {
       "step": "First Research Activity",
-      "count": 6673,
-      "conversionFromTop": 0.379,
-      "conversionFromPrior": 0.68
+      "count": 17348,
+      "conversionFromTop": 0.3847,
+      "conversionFromPrior": 1.0
     }
   ],
-  "newMembersThisPeriod": 17614,
-  "joinFlowCompletionRate": 0.83,
-  "onboardingCompletionRate": 0.81,
-  "medianDaysToFirstParticipation": 4.2,
-  "firstResearchActivityCompletionRate": 0.68
+  "newMembersThisPeriod": 45097,
+  "joinFlowCompletionRate": null,
+  "onboardingCompletionRate": 0.5864,
+  "medianDaysToFirstParticipation": null,
+  "firstResearchActivityCompletionRate": 0.3847
 }

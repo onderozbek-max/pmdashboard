@@ -3,212 +3,47 @@
     {
       "key": "research-survey",
       "label": "Research Surveys",
-      "totalAvailable": 12400,
-      "totalCompleted": 9920,
-      "completionRate": 0.8,
-      "avgCompletionRate7d": 0.81,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.772
-        },
-        {
-          "date": "2026-02",
-          "value": 0.785
-        },
-        {
-          "date": "2026-03",
-          "value": 0.765
-        },
-        {
-          "date": "2026-04",
-          "value": 0.757
-        },
-        {
-          "date": "2026-05",
-          "value": 0.791
-        },
-        {
-          "date": "2026-06",
-          "value": 0.763
-        },
-        {
-          "date": "2026-07",
-          "value": 0.805
-        },
-        {
-          "date": "2026-08",
-          "value": 0.768
-        }
-      ]
+      "totalAvailable": 155957,
+      "totalCompleted": 10070,
+      "completionRate": 0.0646,
+      "avgCompletionRate7d": 0.0646,
+      "trend": []
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "totalAvailable": 3200,
-      "totalCompleted": 2816,
-      "completionRate": 0.88,
-      "avgCompletionRate7d": 0.87,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.848
-        },
-        {
-          "date": "2026-02",
-          "value": 0.877
-        },
-        {
-          "date": "2026-03",
-          "value": 0.87
-        },
-        {
-          "date": "2026-04",
-          "value": 0.874
-        },
-        {
-          "date": "2026-05",
-          "value": 0.852
-        },
-        {
-          "date": "2026-06",
-          "value": 0.858
-        },
-        {
-          "date": "2026-07",
-          "value": 0.842
-        },
-        {
-          "date": "2026-08",
-          "value": 0.875
-        }
-      ]
+      "totalAvailable": 650,
+      "totalCompleted": 430,
+      "completionRate": 0.6615,
+      "avgCompletionRate7d": 0.6615,
+      "trend": []
     },
     {
       "key": "quick-poll",
       "label": "Quick Polls",
-      "totalAvailable": 18000,
-      "totalCompleted": 8100,
-      "completionRate": 0.45,
-      "avgCompletionRate7d": 0.44,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.421
-        },
-        {
-          "date": "2026-02",
-          "value": 0.413
-        },
-        {
-          "date": "2026-03",
-          "value": 0.435
-        },
-        {
-          "date": "2026-04",
-          "value": 0.425
-        },
-        {
-          "date": "2026-05",
-          "value": 0.431
-        },
-        {
-          "date": "2026-06",
-          "value": 0.407
-        },
-        {
-          "date": "2026-07",
-          "value": 0.443
-        },
-        {
-          "date": "2026-08",
-          "value": 0.429
-        }
-      ]
+      "totalAvailable": 0,
+      "totalCompleted": 0,
+      "completionRate": 0.0,
+      "avgCompletionRate7d": 0.0,
+      "trend": []
     },
     {
       "key": "trivia",
       "label": "Trivia",
-      "totalAvailable": 8800,
-      "totalCompleted": 3168,
-      "completionRate": 0.36,
-      "avgCompletionRate7d": 0.38,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.361
-        },
-        {
-          "date": "2026-02",
-          "value": 0.357
-        },
-        {
-          "date": "2026-03",
-          "value": 0.384
-        },
-        {
-          "date": "2026-04",
-          "value": 0.36
-        },
-        {
-          "date": "2026-05",
-          "value": 0.37
-        },
-        {
-          "date": "2026-06",
-          "value": 0.352
-        },
-        {
-          "date": "2026-07",
-          "value": 0.37
-        },
-        {
-          "date": "2026-08",
-          "value": 0.377
-        }
-      ]
+      "totalAvailable": 0,
+      "totalCompleted": 0,
+      "completionRate": 0.0,
+      "avgCompletionRate7d": 0.0,
+      "trend": []
     },
     {
       "key": "other",
       "label": "Other",
-      "totalAvailable": 1200,
-      "totalCompleted": 444,
-      "completionRate": 0.37,
-      "avgCompletionRate7d": 0.36,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.329
-        },
-        {
-          "date": "2026-02",
-          "value": 0.373
-        },
-        {
-          "date": "2026-03",
-          "value": 0.369
-        },
-        {
-          "date": "2026-04",
-          "value": 0.374
-        },
-        {
-          "date": "2026-05",
-          "value": 0.318
-        },
-        {
-          "date": "2026-06",
-          "value": 0.34
-        },
-        {
-          "date": "2026-07",
-          "value": 0.345
-        },
-        {
-          "date": "2026-08",
-          "value": 0.351
-        }
-      ]
+      "totalAvailable": 57402,
+      "totalCompleted": 0,
+      "completionRate": 0.0,
+      "avgCompletionRate7d": 0.0,
+      "trend": []
     }
   ]
 }

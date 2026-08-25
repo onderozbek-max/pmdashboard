@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
-  "source": "synthetic",
-  "dataThrough": "2026-08-21",
-  "generatedAt": "2026-08-24T00:00:00.000Z",
+  "source": "live",
+  "dataThrough": "2026-08-25",
+  "generatedAt": "2026-08-25T16:12:50.942560+00:00",
   "freshnessThresholdHours": 72,
   "currentPeriodLabel": "vs. last month",
   "priorPeriodLabel": "Prior month",

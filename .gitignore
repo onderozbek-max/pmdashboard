@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .DS_Store
+
+# Dashboard refresh tool
+.env
+.venv-tools/
+data_tmp/
+.data_backup/
+tools/__pycache__/
+*.pyc

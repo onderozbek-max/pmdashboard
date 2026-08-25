@@ -3,184 +3,33 @@
     {
       "key": "research-survey",
       "label": "Research Surveys",
-      "supplyShare": 0.35,
-      "completionShare": 0.42
+      "supplyShare": 0.5625,
+      "completionShare": 0.959
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "supplyShare": 0.22,
-      "completionShare": 0.28
+      "supplyShare": 0.375,
+      "completionShare": 0.041
     },
     {
       "key": "quick-poll",
       "label": "Quick Polls",
-      "supplyShare": 0.25,
-      "completionShare": 0.18
+      "supplyShare": 0.0,
+      "completionShare": 0.0
     },
     {
       "key": "trivia",
       "label": "Trivia",
-      "supplyShare": 0.12,
-      "completionShare": 0.09
+      "supplyShare": 0.0,
+      "completionShare": 0.0
     },
     {
       "key": "other",
       "label": "Other",
-      "supplyShare": 0.06,
-      "completionShare": 0.03
+      "supplyShare": 0.0625,
+      "completionShare": 0.0
     }
   ],
-  "history": [
-    {
-      "date": "2026-03",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.406
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.253
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.198
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.102
-        },
-        {
-          "key": "other",
-          "completionShare": 0.052
-        }
-      ]
-    },
-    {
-      "date": "2026-04",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.368
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.257
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.195
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.114
-        },
-        {
-          "key": "other",
-          "completionShare": 0.052
-        }
-      ]
-    },
-    {
-      "date": "2026-05",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.389
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.246
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.211
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.112
-        },
-        {
-          "key": "other",
-          "completionShare": 0.063
-        }
-      ]
-    },
-    {
-      "date": "2026-06",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.404
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.284
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.219
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.089
-        },
-        {
-          "key": "other",
-          "completionShare": 0.055
-        }
-      ]
-    },
-    {
-      "date": "2026-07",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.379
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.255
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.186
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.097
-        },
-        {
-          "key": "other",
-          "completionShare": 0.064
-        }
-      ]
-    },
-    {
-      "date": "2026-08",
-      "types": [
-        {
-          "key": "research-survey",
-          "completionShare": 0.376
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.27
-        },
-        {
-          "key": "quick-poll",
-          "completionShare": 0.216
-        },
-        {
-          "key": "trivia",
-          "completionShare": 0.098
-        },
-        {
-          "key": "other",
-          "completionShare": 0.069
-        }
-      ]
-    }
-  ]
+  "history": []
 }

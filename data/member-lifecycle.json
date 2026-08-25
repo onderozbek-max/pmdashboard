@@ -2,97 +2,53 @@
   "stages": [
     {
       "stage": "Joined",
-      "count": 704548
+      "count": 195226
     },
     {
       "stage": "Activated",
-      "count": 435250
+      "count": 118362
     },
     {
       "stage": "Participated",
-      "count": 356113
+      "count": 66066
     },
     {
       "stage": "Repeated",
-      "count": 294370
+      "count": 35638
     },
     {
       "stage": "Highly Engaged",
-      "count": 118632
+      "count": 16616
     }
   ],
   "mauHistory": [
     {
-      "date": "2025-03",
-      "value": 326425
-    },
-    {
-      "date": "2025-04",
-      "value": 327354
-    },
-    {
-      "date": "2025-05",
-      "value": 336306
-    },
-    {
-      "date": "2025-06",
-      "value": 351098
-    },
-    {
-      "date": "2025-07",
-      "value": 358288
-    },
-    {
-      "date": "2025-08",
-      "value": 365208
-    },
-    {
-      "date": "2025-09",
-      "value": 351157
-    },
-    {
-      "date": "2025-10",
-      "value": 364964
-    },
-    {
-      "date": "2025-11",
-      "value": 363782
-    },
-    {
-      "date": "2025-12",
-      "value": 375664
-    },
-    {
-      "date": "2026-01",
-      "value": 415473
-    },
-    {
       "date": "2026-02",
-      "value": 425720
+      "value": 35587
     },
     {
       "date": "2026-03",
-      "value": 429617
+      "value": 23850
     },
     {
       "date": "2026-04",
-      "value": 439052
+      "value": 18233
     },
     {
       "date": "2026-05",
-      "value": 454509
+      "value": 26593
     },
     {
       "date": "2026-06",
-      "value": 464308
+      "value": 33026
     },
     {
       "date": "2026-07",
-      "value": 480617
+      "value": 37773
     },
     {
       "date": "2026-08",
-      "value": 494602
+      "value": 41424
     }
   ]
 }
