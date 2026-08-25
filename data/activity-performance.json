@@ -3,136 +3,37 @@
     {
       "key": "survey-long",
       "label": "Long Research Surveys",
-      "totalAvailable": 85000,
-      "totalCompleted": 67500,
-      "completionRate": 0.7941,
-      "avgCompletionRate7d": 0.7941,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.78
-        },
-        {
-          "date": "2026-02",
-          "value": 0.781
-        },
-        {
-          "date": "2026-03",
-          "value": 0.782
-        },
-        {
-          "date": "2026-04",
-          "value": 0.783
-        },
-        {
-          "date": "2026-05",
-          "value": 0.784
-        },
-        {
-          "date": "2026-06",
-          "value": 0.785
-        },
-        {
-          "date": "2026-07",
-          "value": 0.786
-        },
-        {
-          "date": "2026-08",
-          "value": 0.787
-        }
-      ]
+      "totalAvailable": 174957,
+      "totalCompleted": 5048,
+      "completionRate": 0.0289,
+      "avgCompletionRate7d": 0.0289,
+      "trend": []
     },
     {
       "key": "survey-short",
       "label": "Short Research Surveys",
-      "totalAvailable": 40000,
-      "totalCompleted": 32000,
-      "completionRate": 0.8,
-      "avgCompletionRate7d": 0.8,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.82
-        },
-        {
-          "date": "2026-02",
-          "value": 0.821
-        },
-        {
-          "date": "2026-03",
-          "value": 0.822
-        },
-        {
-          "date": "2026-04",
-          "value": 0.823
-        },
-        {
-          "date": "2026-05",
-          "value": 0.824
-        },
-        {
-          "date": "2026-06",
-          "value": 0.825
-        },
-        {
-          "date": "2026-07",
-          "value": 0.826
-        },
-        {
-          "date": "2026-08",
-          "value": 0.827
-        }
-      ]
+      "totalAvailable": 41120,
+      "totalCompleted": 5644,
+      "completionRate": 0.1373,
+      "avgCompletionRate7d": 0.1373,
+      "trend": []
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "totalAvailable": 12000,
-      "totalCompleted": 10560,
-      "completionRate": 0.88,
-      "avgCompletionRate7d": 0.88,
-      "trend": [
-        {
-          "date": "2026-01",
-          "value": 0.86
-        },
-        {
-          "date": "2026-02",
-          "value": 0.861
-        },
-        {
-          "date": "2026-03",
-          "value": 0.862
-        },
-        {
-          "date": "2026-04",
-          "value": 0.863
-        },
-        {
-          "date": "2026-05",
-          "value": 0.864
-        },
-        {
-          "date": "2026-06",
-          "value": 0.865
-        },
-        {
-          "date": "2026-07",
-          "value": 0.866
-        },
-        {
-          "date": "2026-08",
-          "value": 0.867
-        }
-      ]
+      "totalAvailable": 650,
+      "totalCompleted": 435,
+      "completionRate": 0.6692,
+      "avgCompletionRate7d": 0.6692,
+      "trend": []
     },
     {
       "key": "other",
       "label": "Other",
-      "totalAvailable": 30000,
-      "totalCompleted": 22500,
-      "completionRate": 0.75,
-      "avgCompletionRate7d": 0.75,
+      "totalAvailable": 57402,
+      "totalCompleted": 0,
+      "completionRate": 0.0,
+      "avgCompletionRate7d": 0.0,
       "trend": []
     }
   ]
