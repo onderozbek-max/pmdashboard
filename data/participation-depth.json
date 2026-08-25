@@ -3,105 +3,61 @@
     {
       "label": "1 activity",
       "minActivities": 1,
-      "count": 140000,
-      "shareOfActive": 0.28,
+      "count": 6157,
+      "shareOfActive": 0.1216,
       "isHighlyEngaged": false
     },
     {
       "label": "2–4",
       "minActivities": 2,
-      "count": 185000,
-      "shareOfActive": 0.37,
+      "count": 27770,
+      "shareOfActive": 0.5486,
       "isHighlyEngaged": false
     },
     {
       "label": "5–9",
       "minActivities": 5,
-      "count": 110000,
-      "shareOfActive": 0.22,
+      "count": 8693,
+      "shareOfActive": 0.1717,
       "isHighlyEngaged": true
     },
     {
       "label": "10+",
       "minActivities": 10,
-      "count": 65000,
-      "shareOfActive": 0.13,
+      "count": 8003,
+      "shareOfActive": 0.1581,
       "isHighlyEngaged": true
     }
   ],
-  "activitiesPerActiveMember": 3.71,
+  "activitiesPerActiveMember": 4.02,
   "history": [
     {
-      "date": "2025-03",
-      "avgActivitiesPerActiveMember": 3.0
-    },
-    {
-      "date": "2025-04",
-      "avgActivitiesPerActiveMember": 3.08
-    },
-    {
-      "date": "2025-05",
-      "avgActivitiesPerActiveMember": 3.16
-    },
-    {
-      "date": "2025-06",
-      "avgActivitiesPerActiveMember": 3.24
-    },
-    {
-      "date": "2025-07",
-      "avgActivitiesPerActiveMember": 3.32
-    },
-    {
-      "date": "2025-08",
-      "avgActivitiesPerActiveMember": 3.4
-    },
-    {
-      "date": "2025-09",
-      "avgActivitiesPerActiveMember": 3.48
-    },
-    {
-      "date": "2025-10",
-      "avgActivitiesPerActiveMember": 3.56
-    },
-    {
-      "date": "2025-11",
-      "avgActivitiesPerActiveMember": 3.64
-    },
-    {
-      "date": "2025-12",
-      "avgActivitiesPerActiveMember": 3.72
-    },
-    {
-      "date": "2026-01",
-      "avgActivitiesPerActiveMember": 3.8
-    },
-    {
       "date": "2026-02",
-      "avgActivitiesPerActiveMember": 3.88
+      "avgActivitiesPerActiveMember": 3.92
     },
     {
       "date": "2026-03",
-      "avgActivitiesPerActiveMember": 3.96
+      "avgActivitiesPerActiveMember": 5.75
     },
     {
       "date": "2026-04",
-      "avgActivitiesPerActiveMember": 4.04
+      "avgActivitiesPerActiveMember": 8.3
     },
     {
       "date": "2026-05",
-      "avgActivitiesPerActiveMember": 4.12
+      "avgActivitiesPerActiveMember": 7.93
     },
     {
       "date": "2026-06",
-      "avgActivitiesPerActiveMember": 4.2
+      "avgActivitiesPerActiveMember": 4.92
     },
     {
       "date": "2026-07",
-      "avgActivitiesPerActiveMember": 4.28
+      "avgActivitiesPerActiveMember": 5.72
     },
     {
       "date": "2026-08",
-      "avgActivitiesPerActiveMember": 4.36
+      "avgActivitiesPerActiveMember": 4.72
     }
   ]
 }

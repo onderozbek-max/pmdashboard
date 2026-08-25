@@ -1,7 +1,7 @@
 {
-  "eligibleActivitiesPerMember": 3.2,
-  "membersWithZeroAvailable": 66791,
-  "membersWithZeroAvailablePct": 0.173,
-  "activitySupplyCoverage": 0.827,
+  "eligibleActivitiesPerMember": 1.68,
+  "membersWithZeroAvailable": 10610,
+  "membersWithZeroAvailablePct": 0.2096,
+  "activitySupplyCoverage": 0.7904,
   "history": []
 }
