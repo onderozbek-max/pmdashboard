@@ -461,7 +461,7 @@ th{text-align:left}
 </style>
 </head>
 <body>
-<a href="#main" class="skip-link">Skip to main content</a>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <div id="synthetic-banner" role="status" aria-live="polite">
   <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 11.5A.75.75 0 118 11a.75.75 0 010 1.5zm.75-3.75a.75.75 0 01-1.5 0v-4a.75.75 0 011.5 0v4z"/></svg>
   Demonstration data — not real metrics
@@ -477,13 +477,21 @@ th{text-align:left}
   </main>
 </div>
 
-<script type="module">
+<script>
 // ═══════════════════════════════════════════════════════════
 // MMC Community Dashboard — Standalone Vanilla JS App
 // All data loaded from /data/*.json via fetch()
 // No npm packages, no build step required
-// Serve from project root: python3 -m http.server 5173
+// Serve from project root: python3 -m http.server 8080
+// Open: http://localhost:8080/public/standalone.html
 // ═══════════════════════════════════════════════════════════
+
+// Show any uncaught JS errors on the page so they're visible without DevTools
+window.onerror = function(msg, src, line, col, err) {
+  var el = document.getElementById('app-view')
+  if (el) el.innerHTML = '<div class="page"><div class="section-error" style="border:2px solid var(--red);padding:1.5rem"><strong>JavaScript error (line ' + line + '):</strong><br><code>' + msg + '</code><br><br>Check browser DevTools console for the full stack trace.</div></div>'
+  return false
+}
 
 // ─── Formatting ───────────────────────────────────────────────
 const nFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
@@ -736,7 +744,8 @@ function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
       </button>
     </div>`
   nav.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>onNavigate(btn.dataset.route)))
-  nav.querySelector('#theme-toggle').addEventListener('click', onThemeToggle)
+  var tt = nav.querySelector('#theme-toggle')
+  if (tt) tt.addEventListener('click', onThemeToggle)
 }
 
 // ─── Metric card HTML ─────────────────────────────────────────
@@ -1255,21 +1264,29 @@ function rewire(root) {
 }
 
 // ─── Boot ─────────────────────────────────────────────────────
-document.documentElement.setAttribute('data-theme', _theme)
-renderNav(_route, navigate, _theme, toggleTheme)
-render()
+try {
+  document.documentElement.setAttribute('data-theme', _theme)
+  renderNav(_route, navigate, _theme, toggleTheme)
+  render()
+} catch(bootErr) {
+  console.error('Boot error:', bootErr)
+  var av = document.getElementById('app-view')
+  if (av) av.innerHTML = '<div class="page"><div class="section-error" style="border:2px solid var(--red);padding:1.5rem"><strong>Startup error:</strong><br><code>' + (bootErr && bootErr.message) + '</code><br><br>Check browser DevTools console for details.</div></div>'
+}
 
-loadAll().then(d => {
+loadAll().then(function(d) {
   _data = d
-  if(d.manifest?.source==='synthetic') {
-    const b = document.getElementById('synthetic-banner')
-    b.classList.add('visible')
-    document.getElementById('banner-spacer').style.height = '36px'
-    document.querySelector('.main-content').style.paddingTop = '0'
+  if(d.manifest && d.manifest.source==='synthetic') {
+    var b = document.getElementById('synthetic-banner')
+    if (b) b.classList.add('visible')
+    var sp = document.getElementById('banner-spacer')
+    if (sp) sp.style.height = '36px'
   }
   render()
-}).catch(err => {
-  document.getElementById('app-view').innerHTML = `<div class="page"><div class="section-error"><strong>Failed to load dashboard data.</strong><br>Ensure the data files exist in <code>public/data/</code> and you are using a local static server (not opening the file directly).</div></div>`
+}).catch(function(err) {
+  console.error('Data load error:', err)
+  var av = document.getElementById('app-view')
+  if (av) av.innerHTML = '<div class="page"><div class="section-error"><strong>Failed to load dashboard data.</strong><br>Ensure the data files exist in <code>public/data/</code> and you are using a local static server, not opening the file directly via file://. Run: <code>python3 -m http.server 8080</code></div></div>'
 })
 </script>
 </body>
