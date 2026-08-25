@@ -19,24 +19,6 @@
       "trend": []
     },
     {
-      "key": "quick-poll",
-      "label": "Quick Polls",
-      "totalAvailable": 0,
-      "totalCompleted": 0,
-      "completionRate": 0.0,
-      "avgCompletionRate7d": 0.0,
-      "trend": []
-    },
-    {
-      "key": "trivia",
-      "label": "Trivia",
-      "totalAvailable": 0,
-      "totalCompleted": 0,
-      "completionRate": 0.0,
-      "avgCompletionRate7d": 0.0,
-      "trend": []
-    },
-    {
       "key": "other",
       "label": "Other",
       "totalAvailable": 57402,

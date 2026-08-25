@@ -13,18 +13,6 @@
       "completionShare": 0.0391
     },
     {
-      "key": "quick-poll",
-      "label": "Quick Polls",
-      "supplyShare": 0.0,
-      "completionShare": 0.0
-    },
-    {
-      "key": "trivia",
-      "label": "Trivia",
-      "supplyShare": 0.0,
-      "completionShare": 0.0
-    },
-    {
       "key": "other",
       "label": "Other",
       "supplyShare": 0.05,

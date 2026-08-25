@@ -100,5 +100,7 @@
       "w8": 0.0666,
       "w12": 0.0666
     }
-  ]
+  ],
+  "medianW2Retention": 0.1192,
+  "medianW4Retention": 0.1588
 }
