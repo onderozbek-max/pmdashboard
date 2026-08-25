@@ -1,19 +1,44 @@
 <!doctype html>
-<html lang="en" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Member's Mark Community — Product Dashboard" />
-    <!-- Intentionally no external resources at runtime. All assets are local. -->
-    <title>Member's Mark Community</title>
-    <!-- Inter font — self-hosted via system stack fallback, or loaded from local assets -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Member's Mark Community — Product Dashboard</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+      display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;
+      background:#f8f9fc;color:#0f172a}
+    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;
+      padding:2.5rem 3rem;max-width:500px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+    h1{font-size:1.25rem;font-weight:600;margin:0 0 .5rem}
+    p{color:#64748b;font-size:.875rem;margin:.5rem 0 1.5rem;line-height:1.6}
+    a.btn{display:inline-block;background:#0057a8;color:#fff;text-decoration:none;
+      padding:.625rem 1.5rem;border-radius:8px;font-size:.875rem;font-weight:600}
+    a.btn:hover{background:#004a90}
+    code{background:#f1f5f9;padding:.125rem .375rem;border-radius:4px;font-size:.8125rem;
+      font-family:"JetBrains Mono","Fira Code",monospace}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin:0 auto 1rem">
+      <rect width="24" height="24" rx="6" fill="#0057a8"/>
+      <path d="M6 17l3-8 3 5 3-5 3 8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Member's Mark Community Dashboard</h1>
+    <p>
+      The full React app requires <code>npm install &amp;&amp; npm run dev</code>.<br>
+      To preview the dashboard now, open the standalone version:
+    </p>
+    <a class="btn" href="/public/standalone.html">Open Dashboard →</a>
+    <p style="margin-top:1.5rem;font-size:.75rem;color:#94a3b8">
+      Or run: <code>python3 -m http.server 4321</code> and open<br>
+      <code>http://localhost:4321/public/standalone.html</code>
+    </p>
+  </div>
+  <script>
+    // Auto-redirect to standalone after a brief moment
+    setTimeout(function(){ location.href = '/public/standalone.html' }, 800)
+  </script>
+</body>
 </html>
