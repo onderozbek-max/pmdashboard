@@ -90,10 +90,10 @@
     ]
   },
   "highlyEngagedMembers": {
-    "current": 16616,
+    "current": 16614,
     "prior": 12616,
-    "change": 4000,
-    "changePct": 0.3171,
+    "change": 3998,
+    "changePct": 0.3169,
     "direction": "up",
     "history": [
       {
