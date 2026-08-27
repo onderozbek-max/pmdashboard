@@ -18,7 +18,7 @@
     },
     {
       "stage": "Highly Engaged",
-      "count": 11477
+      "count": 11464
     }
   ],
   "mauHistory": [
@@ -45,10 +45,6 @@
     {
       "date": "2026-07",
       "value": 29013
-    },
-    {
-      "date": "2026-08",
-      "value": 33845
     }
   ]
 }

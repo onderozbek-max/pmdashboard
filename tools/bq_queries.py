@@ -630,11 +630,31 @@ def query_retention_cohorts(client, project: str, dataset: str,
 
 # ─── Participation Depth ──────────────────────────────────────────────────────
 
-def query_participation_depth_buckets(client, project: str, dataset: str) -> list:
+def query_participation_depth_buckets(client, project: str, dataset: str,
+                                      report_month=None) -> list:
     """
-    Current-month distribution of members by activity count bucket.
-    Buckets match dashboard labels: 1, 2–4, 5–9, 10+.
+    Distribution of active members by activity count bucket for the last complete
+    calendar month. Uses the SAME population as the P0 Monthly Active Members metric
+    (engagement_trend query) so depth bucket totals reconcile with canonical MAU.
+
+    report_month: YYYY-MM string for the last complete calendar month.
+    If not provided, derived from CURRENT_DATE() in SQL (same logic as _last_complete_month()).
+
+    Window alignment fix: original query used a rolling INTERVAL 30 DAY window
+    from CURRENT_TIMESTAMP(), which captured partial current month + some of prior month,
+    producing a larger population than calendar-month MAU (35,290 vs 29,013).
+    Changing to exact calendar month makes depth total = MAU and HE bucket = P0 HE.
     """
+    # Use SQL-side month computation when no override is provided, keeping the function
+    # self-contained for --dry-run / unit testing.
+    if report_month:
+        month_filter = f"FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) = '{report_month}'"
+    else:
+        month_filter = (
+            "FORMAT_DATE('%Y-%m', DATE(a.user_completed_ts)) = "
+            "FORMAT_DATE('%Y-%m', DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 1 DAY))"
+        )
+
     sql = f"""
     WITH monthly_completions AS (
       SELECT a.community_user_id, COUNT(*) AS activity_count
@@ -643,14 +663,14 @@ def query_participation_depth_buckets(client, project: str, dataset: str) -> lis
         ON a.activity_id = atype.activity_id
       WHERE a.assignment_status = 'COMPLETED'
         AND atype.type NOT IN ('onboarding', 'daily_engagement', 'daily engagement')
-        AND a.user_completed_ts >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+        AND {month_filter}
       GROUP BY a.community_user_id
     ),
     total AS (SELECT COUNT(*) AS n FROM monthly_completions),
     buckets AS (
       SELECT
         CASE
-          WHEN activity_count = 1         THEN '1 activity'
+          WHEN activity_count = 1             THEN '1 activity'
           WHEN activity_count BETWEEN 2 AND 4 THEN '2–4'
           WHEN activity_count BETWEEN 5 AND 9 THEN '5–9'
           ELSE '10+'
@@ -762,39 +782,44 @@ def query_activity_completion_trend(client, project: str, dataset: str) -> list:
 
     month_year format in source table: '2026-Jan' (parsed with %Y-%b).
     """
+    # Fix: BigQuery does not allow referencing SELECT aliases in the same-level WHERE clause.
+    # Wrapping in a subquery makes the `month` alias visible to the outer WHERE.
     sql = f"""
-    SELECT
-      FORMAT_DATE('%Y-%m', PARSE_DATE('%Y-%b', month_year)) AS month,
-      activity_type,
-      completion_rate
+    SELECT month, activity_type, completion_rate
     FROM (
-      -- survey-long: full research surveys + concept tests (same depth)
-      SELECT month_year, 'survey-long' AS activity_type,
-        SAFE_DIVIDE(
-          COALESCE(survey_activity_completed_total, 0)
-            + COALESCE(concept_test_completed_total, 0),
-          COALESCE(survey_activity_total, 0)
-            + COALESCE(concept_test_total, 0)
-        ) AS completion_rate
-      FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
-      UNION ALL
-      -- survey-short: screeners (short pre-qualification surveys)
-      SELECT month_year, 'survey-short',
-        SAFE_DIVIDE(
-          COALESCE(screener_activity_completed_total, 0),
-          COALESCE(screener_activity_total, 0)
-        )
-      FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
-      UNION ALL
-      -- ihut: in-home use tests
-      SELECT month_year, 'ihut',
-        SAFE_DIVIDE(
-          COALESCE(in_home_use_test_completed_total, 0),
-          COALESCE(in_home_use_test_total, 0)
-        )
-      FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
-      -- 'other' and onboarding are not in the monthly view.
-      -- They will appear with empty trend arrays in activity-performance.json.
+      SELECT
+        FORMAT_DATE('%Y-%m', PARSE_DATE('%Y-%b', month_year)) AS month,
+        activity_type,
+        completion_rate
+      FROM (
+        -- survey-long: full research surveys + concept tests (same depth)
+        SELECT month_year, 'survey-long' AS activity_type,
+          SAFE_DIVIDE(
+            COALESCE(survey_activity_completed_total, 0)
+              + COALESCE(concept_test_completed_total, 0),
+            COALESCE(survey_activity_total, 0)
+              + COALESCE(concept_test_total, 0)
+          ) AS completion_rate
+        FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
+        UNION ALL
+        -- survey-short: screeners (short pre-qualification surveys)
+        SELECT month_year, 'survey-short',
+          SAFE_DIVIDE(
+            COALESCE(screener_activity_completed_total, 0),
+            COALESCE(screener_activity_total, 0)
+          )
+        FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
+        UNION ALL
+        -- ihut: in-home use tests
+        SELECT month_year, 'ihut',
+          SAFE_DIVIDE(
+            COALESCE(in_home_use_test_completed_total, 0),
+            COALESCE(in_home_use_test_total, 0)
+          )
+        FROM {_t(project, dataset, 'mmc_business_metrics_monthly_view')}
+        -- 'other' and onboarding are not in the monthly view.
+        -- They will appear with empty trend arrays in activity-performance.json.
+      )
     )
     WHERE completion_rate IS NOT NULL
       AND month >= FORMAT_DATE('%Y-%m', DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH))

@@ -82,18 +82,14 @@
       {
         "date": "2026-07",
         "value": 29013
-      },
-      {
-        "date": "2026-08",
-        "value": 33845
       }
     ]
   },
   "highlyEngagedMembers": {
-    "current": 11477,
-    "prior": 9659,
-    "change": 1818,
-    "changePct": 0.1882,
+    "current": 9659,
+    "prior": 3869,
+    "change": 5790,
+    "changePct": 1.4965,
     "direction": "up",
     "history": [
       {
@@ -119,10 +115,6 @@
       {
         "date": "2026-07",
         "value": 9659
-      },
-      {
-        "date": "2026-08",
-        "value": 10996
       }
     ]
   },
@@ -206,9 +198,9 @@
   },
   "activitySupplyCoverage": {
     "current": 0.9784,
-    "prior": 0.9784,
-    "change": 0.0,
-    "changePct": 0.0,
+    "prior": null,
+    "change": null,
+    "changePct": null,
     "direction": "flat",
     "history": []
   }

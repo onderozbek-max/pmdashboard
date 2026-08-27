@@ -154,7 +154,13 @@ if (p0) {
     if (!(key in p0)) { err(`Missing P0 metric: ${key}`); continue }
     const snap = p0[key] as Record<string, unknown>
     if (typeof snap.current !== 'number') err(`${key}.current is not a number`)
-    if (typeof snap.prior !== 'number') err(`${key}.prior is not a number`)
+    // prior/change/changePct may be null when no historical comparison is available
+    // (e.g. activitySupplyCoverage has no point-in-time snapshots). null is valid here;
+    // the UI renders "—" for null deltas rather than a false +0pp.
+    if (snap.prior !== null && typeof snap.prior !== 'number')
+      err(`${key}.prior must be a number or null, got: ${snap.prior}`)
+    else if (snap.prior === null)
+      warn(`${key}.prior is null — no historical comparison available (expected for metrics without point-in-time snapshots)`)
     if (!['up', 'down', 'flat'].includes(snap.direction as string))
       err(`${key}.direction must be up|down|flat, got: ${snap.direction}`)
     if (!Array.isArray(snap.history)) err(`${key}.history must be an array`)
@@ -163,10 +169,10 @@ if (p0) {
       checkChronological(histDates, `${key}.history`)
     }
 
-    // Rate metrics must be in [0,1]
+    // Rate metrics must be in [0,1] (prior may be null when no comparison exists)
     if (['newMemberActivationRate', 'repeatParticipationRate', 'activitySupplyCoverage'].includes(key)) {
       if (!isRate(snap.current)) err(`${key}.current must be in [0,1], got: ${snap.current}`)
-      if (!isRate(snap.prior)) err(`${key}.prior must be in [0,1], got: ${snap.prior}`)
+      if (snap.prior !== null && !isRate(snap.prior)) err(`${key}.prior must be in [0,1] or null, got: ${snap.prior}`)
     }
     ok(`${key} validated`)
   }

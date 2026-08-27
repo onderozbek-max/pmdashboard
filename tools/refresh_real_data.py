@@ -148,7 +148,8 @@ def _fetch_live(project: str, dataset: str) -> dict[str, Any]:
     _fetch("member_funnel",            q.query_member_funnel,              client, project, dataset)
     _fetch("activation_funnel_30d",    q.query_activation_funnel_30d,      client, project, dataset)
     _fetch("retention_cohorts",        q.query_retention_cohorts,          client, project, dataset, lookback)
-    _fetch("depth_buckets",            q.query_participation_depth_buckets, client, project, dataset)
+    from transforms import _last_complete_month as _lcm
+    _fetch("depth_buckets",            q.query_participation_depth_buckets, client, project, dataset, _lcm())
     _fetch("depth_history",            q.query_participation_depth_history, client, project, dataset, lookback)
     _fetch("activity_type_stats",      q.query_activity_type_stats,        client, project, dataset)
     _fetch("activity_completion_trend", q.query_activity_completion_trend, client, project, dataset)

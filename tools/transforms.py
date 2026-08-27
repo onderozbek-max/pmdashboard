@@ -144,8 +144,10 @@ def make_p0_metrics(data: dict) -> dict:
 
     current_mau = _safe_int(complete_trend[-1]["mau"]) if complete_trend else 0
     prior_mau   = _safe_int(complete_trend[-2]["mau"]) if len(complete_trend) >= 2 else 0
-    # History includes the partial current month for the chart (shows trend direction).
-    mau_history = [{"date": r["month"], "value": _safe_int(r["mau"])} for r in trend]
+    # History uses complete months only so the chart is consistent with .current.
+    # Partial current month is excluded — showing it would create a number inconsistency
+    # (partial Aug > complete Jul) that implies a trend the KPI doesn't reflect.
+    mau_history = [{"date": r["month"], "value": _safe_int(r["mau"])} for r in complete_trend]
 
     out["monthlyActiveMembers"] = {
         "current":   current_mau,
@@ -157,10 +159,14 @@ def make_p0_metrics(data: dict) -> dict:
     }
 
     # ── highlyEngagedMembers ──────────────────────────────────────────────────
-    kpi = data.get("kpi_snapshot") or {}
-    current_he = _safe_int(kpi.get("highly_engaged"))
-    prior_he = _safe_int(trend[-2]["highly_engaged"]) if len(trend) >= 2 else 0
-    he_history = [{"date": r["month"], "value": _safe_int(r["highly_engaged"])} for r in trend]
+    # Use the last COMPLETE calendar month from engagement_trend (same window as MAU).
+    # kpi_snapshot["highly_engaged"] uses a rolling 30-day window which differs from MAU's
+    # calendar-month window — mixing them produced a denominator mismatch vs Participation
+    # Depth (depth total 35,290 ≠ MAU 29,013 because depth used rolling-30d, MAU used calendar).
+    current_he = _safe_int(complete_trend[-1]["highly_engaged"]) if complete_trend else 0
+    prior_he   = _safe_int(complete_trend[-2]["highly_engaged"]) if len(complete_trend) >= 2 else 0
+    # History: complete months only, consistent with .current (same fix as MAU history).
+    he_history = [{"date": r["month"], "value": _safe_int(r["highly_engaged"])} for r in complete_trend]
 
     out["highlyEngagedMembers"] = {
         "current":   current_he,
@@ -220,15 +226,17 @@ def make_p0_metrics(data: dict) -> dict:
     covered = _safe_int(cov.get("covered_count"))
     current_cov = round(covered / mau_count, 4) if mau_count else 0.0
 
-    # History is BLOCKED: no point-in-time LIVE status snapshots exist.
+    # History and prior are BLOCKED: no point-in-time LIVE status snapshots exist.
     # See bq_queries.py::query_activity_supply_coverage for explanation.
+    # prior/change/changePct are null (not 0) to prevent the UI from showing a
+    # false "+0pp" change — null renders as "—" and correctly signals no comparison.
     out["activitySupplyCoverage"] = {
         "current":   current_cov,
-        "prior":     current_cov,   # no prior — UI will show flat trend
-        "change":    0.0,
-        "changePct": 0.0,
+        "prior":     None,   # no historical snapshot → no comparison available
+        "change":    None,
+        "changePct": None,
         "direction": "flat",
-        # NOTE: history unavailable. Trend chart will be empty for this metric.
+        # NOTE: history unavailable. Trend chart renders "not yet available" state.
         "history":   [],
     }
 
@@ -242,10 +250,18 @@ def make_member_lifecycle(data: dict) -> dict:
     Build member-lifecycle.json.
 
     Funnel stages come from query_member_funnel (all-time).
-    mauHistory comes from engagement_trend.
+    mauHistory uses complete calendar months only — consistent with P0 MAU definition.
+
+    The member_funnel query's "Highly Engaged" CTE uses the same rolling-30d window
+    as the old kpi_snapshot HE value. We use it here for the lifecycle stage because
+    the funnel is a current-state snapshot, not a monthly aggregate. This is intentionally
+    different from the P0 highlyEngagedMembers metric (which now uses the last complete
+    calendar month for MoM comparability). The distinction is documented in STAGE_TOOLTIPS.
     """
     funnel = {r["stage"]: r["member_count"] for r in (data.get("member_funnel") or [])}
     trend = data.get("engagement_trend") or []
+    last_complete = _last_complete_month()
+    complete_trend = [r for r in trend if r.get("month", "") <= last_complete]
 
     stages = [
         {"stage": "Joined",        "count": _safe_int(funnel.get("Joined"))},
@@ -255,9 +271,10 @@ def make_member_lifecycle(data: dict) -> dict:
         {"stage": "Highly Engaged","count": _safe_int(funnel.get("Highly Engaged"))},
     ]
 
+    # History: complete months only so the chart aligns with P0 MAU current value.
     mau_history = [
         {"date": r["month"], "value": _safe_int(r["mau"])}
-        for r in trend
+        for r in complete_trend
     ]
 
     return {"stages": stages, "mauHistory": mau_history}

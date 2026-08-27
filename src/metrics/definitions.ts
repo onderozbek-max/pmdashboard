@@ -94,7 +94,8 @@ export const METRIC_DEFINITIONS: Record<string, MetricDefinition> = {
     shortLabel: 'Highly Engaged',
     description: `Members completing ${HIGHLY_ENGAGED_THRESHOLD}+ activities per month — measuring depth of Community participation.`,
     qualifyingDefinition:
-      `A member is Highly Engaged if they completed ≥${HIGHLY_ENGAGED_THRESHOLD} participation activities in the rolling 30-day window.`,
+      `A member is Highly Engaged if they completed ≥${HIGHLY_ENGAGED_THRESHOLD} participation activities in the last complete calendar month. ` +
+      `Uses the same population window as Monthly Active Members for denominatoral consistency.`,
     unit: 'count',
     group: 'community-scale',
     priority: 'P0',

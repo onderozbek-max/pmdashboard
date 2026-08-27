@@ -740,7 +740,7 @@ function getAttention(p0) {
 const METRIC_TOOLTIPS = {
   totalMembers: 'All enrolled members where is_active = TRUE. Includes members who have never participated — this is community reach, not activity.',
   monthlyActiveMembers: 'Distinct members who completed ≥1 non-onboarding activity in the last complete calendar month. Onboarding surveys are excluded.',
-  highlyEngagedMembers: 'Members with ≥5 non-onboarding activity completions in the rolling 30-day window.',
+  highlyEngagedMembers: 'Members with ≥5 non-onboarding activity completions in the last complete calendar month. Aligns with the MAU population definition.',
   newMemberActivationRate: 'Share of members joining in a given month who completed ≥1 research activity within 14 days. Onboarding surveys excluded.',
   repeatParticipationRate: 'Share of monthly active members (MAU) who completed ≥2 non-onboarding activities in the same month.',
   activitySupplyCoverage: 'Share of MAU members who currently have ≥1 live activity assigned to them in ASSIGNED or STARTED status.',
@@ -752,7 +752,7 @@ const STAGE_TOOLTIPS = {
   'Activated':      'Members who completed Onboarding Survey 1. Required before research activities are unlocked.',
   'Participated':   'All-time: members who completed ≥1 research or participation activity beyond onboarding.',
   'Repeated':       'All-time: members who completed ≥2 research activities, demonstrating voluntary return.',
-  'Highly Engaged': 'Current: members with ≥5 non-onboarding completions in the last 30 days (rolling window).',
+  'Highly Engaged': 'Members with ≥5 non-onboarding completions in the last complete calendar month. Uses the same population as MAU.',
 }
 
 // ─── Goal trajectory forecast ─────────────────────────────────────────────
@@ -791,11 +791,8 @@ function generateBrief(data) {
   const act = p0.newMemberActivationRate
   const rpt = p0.repeatParticipationRate
   const he = p0.highlyEngagedMembers
-  if (act.current < 0.45) {
-    bullets.push({text: `Activation is a key growth constraint: only ${fmt.pct(act.current)} of new members complete their first survey within 14 days — below the configured 45% operating threshold.`, cls: 'crit'})
-  } else {
-    bullets.push({text: `${fmt.pct(act.current)} of new members activate within 14 days; ${fmt.pct(rpt.current)} of MAU return for a second activity. ${fmt.c(he.current)} members are highly engaged (${fmt.pct(he.current/Math.max(mau.current,1))} of MAU).`, cls: ''})
-  }
+  // No threshold comparison — 45% had no authoritative product source
+  bullets.push({text: `${fmt.pct(act.current)} of new members activate within 14 days; ${fmt.pct(rpt.current)} of MAU return for a second activity. ${fmt.c(he.current)} members are highly engaged (${fmt.pct(he.current/Math.max(mau.current,1))} of MAU).`, cls: act.current < 0.30 ? 'crit' : ''})
   const cov = p0.activitySupplyCoverage
   if (cov.current < 0.80) {
     const zero = supply?.membersWithZeroAvailable
@@ -1132,7 +1129,7 @@ function renderOverview(data) {
           annotations:manifest.annotations||[],
           height:240,
         })}
-        <p class="chart-caption"><strong>MAU</strong> = distinct members completing ≥1 non-onboarding activity per month. <strong>Highly Engaged</strong> = members with ≥5 completions in the rolling 30-day window. Dashed amber line = goal. Vertical markers = product events.</p>
+        <p class="chart-caption"><strong>MAU</strong> = distinct members completing ≥1 non-onboarding activity in the last complete calendar month. <strong>Highly Engaged</strong> = members with ≥5 completions in the last complete calendar month. Both metrics use the same population window. Dashed amber line = goal. Vertical markers = product events.</p>
       </div>
     </section>
 
@@ -1168,7 +1165,7 @@ function renderMembers(data, activeTab='journey') {
         // Visually separate the rolling-window HE metric from the cumulative lifetime funnel
         const divider = isHE ? `<div style="margin:.75rem 0;display:flex;align-items:center;gap:.75rem">
           <div style="flex:1;height:1px;background:var(--border-md)"></div>
-          <span style="font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3)">Current engagement (rolling 30d)</span>
+          <span style="font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3)">Highly Engaged (last complete month)</span>
           <div style="flex:1;height:1px;background:var(--border-md)"></div>
         </div>` : ''
         return `${divider}${i>0?`<div class="journey-connector${warn&&!isHE?' warn':''}">${isHE?'':'→ '}${isHE?'':fmt.pct(cv)+' retained'}</div>`:''}
@@ -1469,12 +1466,7 @@ function render() {
   else if(_route==='activities')  html = renderActivities(_data, _activitiesTab)
   else if(_route==='experiments') html = renderExperiments(_data, _experimentsTab)
   view.innerHTML = html
-  // Wire tab buttons
-  view.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
-    if(_route==='members')     { _membersTab = btn.dataset.tab; view.innerHTML = renderMembers(_data, _membersTab); rewire(view) }
-    if(_route==='activities')  { _activitiesTab = btn.dataset.tab; view.innerHTML = renderActivities(_data, _activitiesTab); rewire(view) }
-    if(_route==='experiments') { _experimentsTab = btn.dataset.tab; view.innerHTML = renderExperiments(_data, _experimentsTab); rewire(view) }
-  }))
+  // Tab and nav wiring: rewire() is the single source; no duplicate wiring here
   rewire(view)
 }
 

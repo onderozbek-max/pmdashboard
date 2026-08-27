@@ -25,5 +25,153 @@
       "completionShare": 0.0
     }
   ],
-  "history": []
+  "history": [
+    {
+      "date": "2026-02",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.1443
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.0
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.1111
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-03",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.0511
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.0
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.1111
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-04",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.048
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.0
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.1111
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-05",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.0375
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.0
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.1111
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-06",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.0403
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.1869
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.5842
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-07",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.0485
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.1849
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.6148
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    },
+    {
+      "date": "2026-08",
+      "types": [
+        {
+          "key": "survey-long",
+          "completionShare": 0.0524
+        },
+        {
+          "key": "survey-short",
+          "completionShare": 0.3865
+        },
+        {
+          "key": "ihut",
+          "completionShare": 0.6298
+        },
+        {
+          "key": "other",
+          "completionShare": 0.0
+        }
+      ]
+    }
+  ]
 }
