@@ -17,9 +17,6 @@ on:
         required: false
         default: 'Manual refresh from dashboard'
 
-  schedule:
-    - cron: '0 10 * * *'   # 10:00 UTC = 5am CST / 6am CDT
-
 jobs:
   refresh:
     name: Refresh BigQuery → data/*.json
