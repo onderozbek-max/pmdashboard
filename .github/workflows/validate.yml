@@ -22,10 +22,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Validate dashboard data
-        run: node --experimental-strip-types scripts/validate-data.ts
+        run: node scripts/validate-data.ts
 
       - name: Check for broken absolute paths in index.html
         run: |
