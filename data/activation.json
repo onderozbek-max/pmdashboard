@@ -3,27 +3,27 @@
   "steps": [
     {
       "step": "Joined Community",
-      "count": 17000,
+      "count": 38988,
       "conversionFromTop": 1.0,
       "conversionFromPrior": 1.0
     },
     {
       "step": "Completed Onboarding",
-      "count": 11390,
-      "conversionFromTop": 0.67,
-      "conversionFromPrior": 0.67
+      "count": 23115,
+      "conversionFromTop": 0.5929,
+      "conversionFromPrior": 0.5929
     },
     {
       "step": "First Research Activity",
-      "count": 9486,
-      "conversionFromTop": 0.558,
-      "conversionFromPrior": 0.8328,
+      "count": 13706,
+      "conversionFromTop": 0.3515,
+      "conversionFromPrior": 0.5929,
       "medianDaysFromJoin": null
     }
   ],
-  "newMembersThisPeriod": 17000,
+  "newMembersThisPeriod": 38988,
   "joinFlowCompletionRate": null,
-  "onboardingCompletionRate": 0.67,
+  "onboardingCompletionRate": 0.5929,
   "medianDaysToFirstParticipation": null,
-  "firstResearchActivityCompletionRate": 0.558
+  "firstResearchActivityCompletionRate": 0.3515
 }

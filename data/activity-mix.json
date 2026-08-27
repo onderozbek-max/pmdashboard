@@ -3,196 +3,27 @@
     {
       "key": "survey-long",
       "label": "Long Research Surveys",
-      "supplyShare": 0.5741,
-      "completionShare": 0.5092
+      "supplyShare": 0.6538,
+      "completionShare": 0.6424
     },
     {
       "key": "survey-short",
       "label": "Short Research Surveys",
-      "supplyShare": 0.1667,
-      "completionShare": 0.2414
+      "supplyShare": 0.0769,
+      "completionShare": 0.3317
     },
     {
       "key": "ihut",
       "label": "IHUTs",
-      "supplyShare": 0.1481,
-      "completionShare": 0.0797
+      "supplyShare": 0.2308,
+      "completionShare": 0.0259
     },
     {
       "key": "other",
       "label": "Other",
-      "supplyShare": 0.1111,
-      "completionShare": 0.1697
+      "supplyShare": 0.0385,
+      "completionShare": 0.0
     }
   ],
-  "history": [
-    {
-      "date": "2026-01",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.78
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.82
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.86
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-02",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.781
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.821
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.861
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-03",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.782
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.822
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.862
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-04",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.783
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.823
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.863
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-05",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.784
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.824
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.864
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-06",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.785
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.825
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.865
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-07",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.786
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.826
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.866
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    },
-    {
-      "date": "2026-08",
-      "types": [
-        {
-          "key": "survey-long",
-          "completionShare": 0.787
-        },
-        {
-          "key": "survey-short",
-          "completionShare": 0.827
-        },
-        {
-          "key": "ihut",
-          "completionShare": 0.867
-        },
-        {
-          "key": "other",
-          "completionShare": 0.0
-        }
-      ]
-    }
-  ]
+  "history": []
 }
