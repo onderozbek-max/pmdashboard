@@ -487,6 +487,41 @@ th{text-align:left}
 /* ── Section context notes ── */
 .ctx-note{font-size:.75rem;color:var(--text-2);background:var(--surface-2);border-radius:8px;padding:.625rem .875rem;margin-top:.875rem;line-height:1.5;border-left:3px solid var(--border-md)}
 .ctx-note strong{color:var(--text)}
+
+/* ── Refresh button ── */
+.refresh-btn{display:flex;align-items:center;gap:.5rem;padding:.4rem .875rem;border-radius:6px;
+  font-size:.75rem;font-weight:600;border:1px solid var(--border-md);background:var(--bg-surface);
+  color:var(--text);cursor:pointer;transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.refresh-btn:hover{background:var(--bg-hover);border-color:var(--blue)}
+.refresh-btn:disabled{opacity:.5;cursor:default}
+.refresh-btn svg{transition:transform .6s linear}
+.refresh-btn.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.refresh-status{font-size:.6875rem;color:var(--text-3);margin-top:.25rem;text-align:center;min-height:1em}
+.refresh-status.ok{color:var(--emerald)}
+.refresh-status.err{color:var(--red)}
+
+/* ── Settings drawer ── */
+.settings-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.4);backdrop-filter:blur(2px)}
+.settings-overlay.open{display:flex;align-items:flex-end;justify-content:flex-start}
+.settings-drawer{background:var(--bg-surface);border:1px solid var(--border);border-radius:12px 12px 0 0;
+  width:min(420px,100vw);margin-left:var(--nav-w,0);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;
+  box-shadow:0 -4px 32px rgba(0,0,0,.15)}
+.sd-header{display:flex;align-items:center;justify-content:space-between}
+.sd-title{font-size:1rem;font-weight:700}
+.sd-close{padding:.25rem;background:none;border:none;cursor:pointer;color:var(--text-3);border-radius:4px}
+.sd-close:hover{color:var(--text)}
+.sd-field label{display:block;font-size:.75rem;font-weight:600;color:var(--text-2);margin-bottom:.375rem}
+.sd-field input{width:100%;padding:.5rem .75rem;border:1px solid var(--border-md);border-radius:6px;
+  background:var(--bg-inset);color:var(--text);font-size:.875rem;box-sizing:border-box}
+.sd-field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.sd-hint{font-size:.6875rem;color:var(--text-3);line-height:1.5;margin-top:.25rem}
+.sd-actions{display:flex;gap:.5rem;justify-content:flex-end}
+.sd-save{padding:.5rem 1.25rem;border-radius:6px;font-size:.875rem;font-weight:600;
+  background:var(--blue);color:#fff;border:none;cursor:pointer}
+.sd-save:hover{opacity:.9}
+.sd-cancel{padding:.5rem 1.25rem;border-radius:6px;font-size:.875rem;
+  background:none;border:1px solid var(--border-md);color:var(--text-2);cursor:pointer}
 </style>
 </head>
 <body>
@@ -504,6 +539,38 @@ th{text-align:left}
     <div id="banner-spacer"></div>
     <div id="app-view"></div>
   </main>
+</div>
+
+<!-- Settings drawer (refresh config) -->
+<div class="settings-overlay" id="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="sd-title">
+  <div class="settings-drawer">
+    <div class="sd-header">
+      <span id="sd-title" class="sd-title">Refresh Settings</span>
+      <button class="sd-close" onclick="closeSettings()" aria-label="Close">✕</button>
+    </div>
+    <p style="font-size:.8125rem;color:var(--text-2);line-height:1.5;margin:0">
+      Enter your GitHub repo and a
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=MMC+Dashboard+Refresh" target="_blank" rel="noopener" style="color:var(--blue)">Personal Access Token</a>
+      with <code>repo</code> scope. Stored in your browser only — never sent anywhere except GitHub's API.
+    </p>
+    <div class="sd-field">
+      <label for="sd-owner">GitHub Owner (user or org)</label>
+      <input id="sd-owner" type="text" placeholder="e.g. walmart-labs" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="sd-field">
+      <label for="sd-repo">Repository Name</label>
+      <input id="sd-repo" type="text" placeholder="e.g. pm-command-center" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="sd-field">
+      <label for="sd-pat">Personal Access Token</label>
+      <input id="sd-pat" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+      <p class="sd-hint">Create a <strong>fine-grained PAT</strong> scoped to this repo with <em>Actions: Read and write</em> permission. Never use a classic token with broad scope.</p>
+    </div>
+    <div class="sd-actions">
+      <button class="sd-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="sd-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -837,6 +904,14 @@ function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
         </li>`).join('')}
     </ul>
     <div class="nav-footer">
+      <div style="padding:.5rem .75rem .25rem;display:flex;flex-direction:column;align-items:stretch;gap:.25rem">
+        <button id="refresh-btn" class="refresh-btn" onclick="triggerRefresh()" title="Trigger GitHub Actions data refresh">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v5h5"/><path d="M16 16v-5h-5"/><path d="M20 10A10 10 0 014.93 4.93"/><path d="M0 10a10 10 0 0015.07 5.07"/></svg>
+          <span>Refresh Data</span>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" onclick="event.stopPropagation();openSettings()" style="opacity:.5;margin-left:auto" title="Refresh settings"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+        </button>
+        <div id="refresh-status" class="refresh-status"></div>
+      </div>
       <button class="nav-item" id="theme-toggle" aria-label="Switch to ${theme==='light'?'dark':'light'} theme">
         ${theme==='light'
           ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"/></svg>'
@@ -848,6 +923,9 @@ function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
   nav.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>onNavigate(btn.dataset.route)))
   var tt = nav.querySelector('#theme-toggle')
   if (tt) tt.addEventListener('click', onThemeToggle)
+  // Close settings overlay on background click
+  var overlay = document.getElementById('settings-overlay')
+  if (overlay) overlay.addEventListener('click', e => { if(e.target===overlay) closeSettings() })
 }
 
 // ─── Metric card HTML ─────────────────────────────────────────
@@ -1372,6 +1450,95 @@ function rewire(root) {
     if(_route==='activities')  { _activitiesTab = btn.dataset.tab; render() }
     if(_route==='experiments') { _experimentsTab = btn.dataset.tab; render() }
   }))
+}
+
+// ─── Refresh via GitHub Actions ───────────────────────────────
+// Stores GitHub PAT + repo in localStorage so the refresh button
+// can trigger a workflow_dispatch without a backend.
+//
+// Security note: PAT is stored in the browser's localStorage. This is
+// acceptable for a personal internal dashboard. Use a fine-grained PAT
+// scoped to only "Actions: write" on this specific repository.
+
+const REFRESH_KEY = 'mmc_refresh_cfg'
+
+function loadRefreshConfig() {
+  try { return JSON.parse(localStorage.getItem(REFRESH_KEY) || '{}') } catch { return {} }
+}
+function saveRefreshConfig(cfg) {
+  localStorage.setItem(REFRESH_KEY, JSON.stringify(cfg))
+}
+
+function openSettings() {
+  document.getElementById('settings-overlay').classList.add('open')
+  const cfg = loadRefreshConfig()
+  document.getElementById('sd-owner').value  = cfg.owner  || ''
+  document.getElementById('sd-repo').value   = cfg.repo   || ''
+  document.getElementById('sd-pat').value    = cfg.pat    || ''
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open')
+}
+function saveSettings() {
+  saveRefreshConfig({
+    owner: document.getElementById('sd-owner').value.trim(),
+    repo:  document.getElementById('sd-repo').value.trim(),
+    pat:   document.getElementById('sd-pat').value.trim(),
+  })
+  closeSettings()
+  setRefreshStatus('Settings saved.', 'ok')
+}
+
+function setRefreshStatus(msg, cls='') {
+  const el = document.getElementById('refresh-status')
+  if (!el) return
+  el.textContent = msg
+  el.className = 'refresh-status' + (cls ? ' '+cls : '')
+}
+
+async function triggerRefresh() {
+  const cfg = loadRefreshConfig()
+  if (!cfg.owner || !cfg.repo || !cfg.pat) {
+    openSettings()
+    setRefreshStatus('Enter your GitHub details first.')
+    return
+  }
+
+  const btn = document.getElementById('refresh-btn')
+  if (btn) { btn.disabled = true; btn.classList.add('spinning') }
+  setRefreshStatus('Triggering refresh…')
+
+  try {
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows/refresh-data.yml/dispatches`
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${cfg.pat}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ref: 'main', inputs: { reason: 'Manual refresh from dashboard' } }),
+    })
+
+    if (res.status === 204) {
+      setRefreshStatus('✓ Refresh started — new data in ~3 min. Reload page after.', 'ok')
+    } else if (res.status === 401) {
+      setRefreshStatus('Auth failed — check your PAT.', 'err')
+      openSettings()
+    } else if (res.status === 404) {
+      setRefreshStatus('Workflow not found — check owner/repo.', 'err')
+      openSettings()
+    } else {
+      const body = await res.text()
+      setRefreshStatus(`Error ${res.status}: ${body.slice(0,80)}`, 'err')
+    }
+  } catch(e) {
+    setRefreshStatus('Network error — check console.', 'err')
+    console.error('Refresh trigger failed:', e)
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('spinning') }
+  }
 }
 
 // ─── Boot ─────────────────────────────────────────────────────
