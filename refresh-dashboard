@@ -2,9 +2,9 @@
 # refresh-dashboard — One-command MMC Dashboard data refresh
 #
 # Usage:
-#   ./refresh-dashboard            # live data from BigQuery
-#   ./refresh-dashboard --dry-run  # test pipeline without credentials
-#   ./refresh-dashboard --help     # show all options
+#   ./refresh-dashboard              # pull live data, review manually, then commit
+#   ./refresh-dashboard --auto-push  # pull + commit + push automatically (for cron)
+#   ./refresh-dashboard --dry-run    # test pipeline without credentials
 #
 # This script:
 #   1. Verifies Python 3 is available
@@ -13,12 +13,15 @@
 #   4. Verifies Google Cloud ADC credentials (unless --dry-run)
 #   5. Runs tools/refresh_real_data.py
 #   6. Runs the Node.js data validator as a final check
+#   7. (--auto-push only) git add data/ → commit → push
+#
+# Scheduled daily refresh (add to crontab with: crontab -e):
+#   0 7 * * 1-5  /Users/o0o02dn/Desktop/pm-command-center/refresh-dashboard --auto-push >> /tmp/mmc-refresh.log 2>&1
 #
 # Security:
 #   Authentication uses Application Default Credentials (ADC).
 #   Run "gcloud auth application-default login" to authenticate.
 #   Do NOT commit .env, ADC files, or service-account keys.
-#   Do NOT commit data/*.json without reviewing the output first.
 #
 set -euo pipefail
 
@@ -38,10 +41,12 @@ success() { echo -e "${GRN}✓${RST}  $*"; }
 warn()    { echo -e "${YLW}⚠${RST}  $*" >&2; }
 die()     { echo -e "${RED}✗${RST}  $*" >&2; exit 1; }
 
-# ── Detect --dry-run flag without consuming args ──────────────────────────────
+# ── Parse flags ──────────────────────────────────────────────────────────────
 DRY_RUN=0
+AUTO_PUSH=0
 for arg in "$@"; do
-  [[ "$arg" == "--dry-run" ]] && DRY_RUN=1
+  [[ "$arg" == "--dry-run" ]]   && DRY_RUN=1
+  [[ "$arg" == "--auto-push" ]] && AUTO_PUSH=1
 done
 
 # ── Python check ─────────────────────────────────────────────────────────────
@@ -107,7 +112,38 @@ if ! python3 "$SCRIPT_DIR/tools/refresh_real_data.py" "$@"; then
   die "Refresh failed. Previous data/ snapshot was preserved."
 fi
 
-# ── Final validation hint ─────────────────────────────────────────────────────
+# ── Auto-push (for scheduled runs via launchd) ───────────────────────────────
+if [[ "$AUTO_PUSH" -eq 1 ]]; then
+  cd "$SCRIPT_DIR"
+  TODAY="$(date +%Y-%m-%d)"
+
+  # Guard: if data was already refreshed today, do nothing.
+  # This prevents the three launchd time slots (9:30 / 10:00 / 10:30) from
+  # all triggering on the same day if the Mac was asleep through all of them.
+  if [[ -f "$SCRIPT_DIR/data/manifest.json" ]]; then
+    DATA_THROUGH="$(python3 -c "import json,sys; print(json.load(open('$SCRIPT_DIR/data/manifest.json')).get('dataThrough',''))" 2>/dev/null || echo '')"
+    if [[ "$DATA_THROUGH" == "$TODAY" ]]; then
+      echo "[$(date '+%H:%M')] Already refreshed today ($TODAY) — skipping."
+      exit 0
+    fi
+  fi
+
+  echo "[$(date '+%H:%M')] Starting scheduled refresh for $TODAY…"
+
+  if git diff --quiet data/; then
+    info "No data changes since last refresh — nothing to commit."
+  else
+    info "Committing and pushing updated data…"
+    git add data/
+    git commit -m "chore: auto-refresh metrics $TODAY"
+    git push
+    success "Data pushed to GitHub Pages."
+  fi
+  echo
+  exit 0
+fi
+
+# ── Manual run: show review hints ────────────────────────────────────────────
 echo
 success "Refresh complete."
 echo
@@ -119,5 +155,5 @@ echo
 echo "  When satisfied — commit:"
 echo "    git add data/"
 echo "    git diff --staged | head -60   # spot-check diff"
-echo "    git commit -m 'chore: refresh live metrics <date>'"
+echo "    git commit -m 'chore: refresh live metrics $(date +%Y-%m-%d)'"
 echo

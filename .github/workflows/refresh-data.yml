@@ -1,0 +1,87 @@
+name: Refresh Dashboard Data
+
+# Triggers:
+#   1. Manual — from the dashboard "Refresh" button or GitHub Actions tab
+#   2. Scheduled — daily at 10:00 UTC (5am CST / 6am CDT)
+#
+# Requirements (set in repo Settings → Secrets and variables → Actions):
+#   GCP_SA_KEY  — Google Cloud service account JSON key with roles:
+#                   BigQuery Data Viewer  (on sams-mmc-social-prod)
+#                   BigQuery Job User     (on sams-mmc-social-prod)
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual refresh (optional)'
+        required: false
+        default: 'Manual refresh from dashboard'
+
+  schedule:
+    - cron: '0 10 * * *'   # 10:00 UTC = 5am CST / 6am CDT
+
+jobs:
+  refresh:
+    name: Refresh BigQuery → data/*.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write    # needed to push the updated data files
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: tools/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r tools/requirements.txt
+
+      - name: Set up Node.js (for data validator)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Write service account credentials
+        # Writes the secret to a temp file so google.auth.default() picks it up
+        # via GOOGLE_APPLICATION_CREDENTIALS. File is deleted after the job ends.
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > /tmp/gcp_sa_key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp_sa_key.json" >> $GITHUB_ENV
+
+      - name: Refresh data from BigQuery
+        env:
+          BQ_PROJECT: sams-mmc-social-prod
+          BQ_DATASET: prod
+        run: |
+          echo "Starting refresh (reason: ${{ github.event.inputs.reason || 'scheduled' }})"
+          python3 tools/refresh_real_data.py
+
+      - name: Validate output
+        run: node --experimental-strip-types scripts/validate-data.ts
+
+      - name: Check for data changes
+        id: diff
+        run: |
+          git diff --quiet data/ && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push updated data
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git commit -m "chore: refresh live metrics $(date -u +%Y-%m-%d) [skip ci]"
+          git push
+
+      - name: Report no changes
+        if: steps.diff.outputs.changed == 'false'
+        run: echo "Data unchanged since last refresh — nothing to commit."

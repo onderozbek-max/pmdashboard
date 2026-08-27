@@ -522,6 +522,25 @@ th{text-align:left}
 .sd-save:hover{opacity:.9}
 .sd-cancel{padding:.5rem 1.25rem;border-radius:6px;font-size:.875rem;
   background:none;border:1px solid var(--border-md);color:var(--text-2);cursor:pointer}
+
+/* ── Refresh button in nav ── */
+.refresh-btn{display:flex;align-items:center;gap:.5rem;padding:.4rem .625rem;
+  background:var(--surface-2);border:1px solid var(--border-md);border-radius:8px;
+  cursor:pointer;font-size:.75rem;color:var(--text-2);width:100%;text-align:left;
+  transition:background .15s,color .15s;line-height:1}
+.refresh-btn:hover:not(:disabled){background:var(--surface-3,var(--border));color:var(--text)}
+.refresh-btn:disabled{opacity:.6;cursor:not-allowed}
+.refresh-btn .rb-icon{flex-shrink:0;transition:transform .6s linear}
+.refresh-btn.spinning .rb-icon{animation:spin .8s linear infinite}
+.refresh-btn .rb-settings{margin-left:auto;opacity:.45;padding:.1rem;border-radius:3px;
+  flex-shrink:0;background:none;border:none;cursor:pointer;color:inherit;line-height:0}
+.refresh-btn .rb-settings:hover{opacity:.9}
+@keyframes spin{to{transform:rotate(360deg)}}
+.refresh-status{font-size:.6875rem;color:var(--text-3);line-height:1.4;padding:.2rem .125rem;
+  min-height:0;display:none}
+.refresh-status:not(:empty){display:block}
+.refresh-status.ok{color:var(--emerald)}
+.refresh-status.err{color:var(--red)}
 </style>
 </head>
 <body>
@@ -904,13 +923,11 @@ function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
         </li>`).join('')}
     </ul>
     <div class="nav-footer">
-      <div style="padding:.5rem .75rem .25rem;display:flex;flex-direction:column;align-items:stretch;gap:.25rem">
-        <button id="refresh-btn" class="refresh-btn" onclick="triggerRefresh()" title="Trigger GitHub Actions data refresh">
-          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v5h5"/><path d="M16 16v-5h-5"/><path d="M20 10A10 10 0 014.93 4.93"/><path d="M0 10a10 10 0 0015.07 5.07"/></svg>
-          <span>Refresh Data</span>
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" onclick="event.stopPropagation();openSettings()" style="opacity:.5;margin-left:auto" title="Refresh settings"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
-        </button>
-        <div id="refresh-status" class="refresh-status"></div>
+      <div style="padding:.5rem .75rem .375rem">
+        <div style="font-size:.6875rem;color:var(--text-3);line-height:1.5">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="vertical-align:-.1em;margin-right:.25rem"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 7.75a.75.75 0 01-1.5 0V5a.75.75 0 011.5 0v3.75zm0 2.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+          Data refreshes daily at 7 am. To refresh now, run <code style="font-size:.625rem;background:var(--surface-2);padding:.1rem .3rem;border-radius:3px">./refresh-dashboard</code> locally.
+        </div>
       </div>
       <button class="nav-item" id="theme-toggle" aria-label="Switch to ${theme==='light'?'dark':'light'} theme">
         ${theme==='light'
@@ -1522,7 +1539,26 @@ async function triggerRefresh() {
     })
 
     if (res.status === 204) {
-      setRefreshStatus('✓ Refresh started — new data in ~3 min. Reload page after.', 'ok')
+      setRefreshStatus('✓ Queued — auto-reloading when done (~3 min)…', 'ok')
+      // Poll manifest.generatedAt every 20s; reload when it changes (workflow finished + committed)
+      const originalTs = _data?.manifest?.generatedAt
+      let attempts = 0
+      const poll = setInterval(async () => {
+        attempts++
+        if (attempts > 18) { // give up after 6 minutes
+          clearInterval(poll)
+          setRefreshStatus('Refresh may have completed — reload manually.', '')
+          return
+        }
+        try {
+          const m = await fetch('./data/manifest.json?_=' + Date.now()).then(r => r.json())
+          if (m && m.generatedAt && m.generatedAt !== originalTs) {
+            clearInterval(poll)
+            setRefreshStatus('✓ Data updated! Reloading…', 'ok')
+            setTimeout(() => location.reload(), 1200)
+          }
+        } catch {}
+      }, 20000)
     } else if (res.status === 401) {
       setRefreshStatus('Auth failed — check your PAT.', 'err')
       openSettings()
