@@ -207,18 +207,33 @@ if (exps && Array.isArray((exps as Record<string, unknown[]>).experiments)) {
 
 // ─── Retention ────────────────────────────────────────────────────────────────
 
+// Minimum cohort size for reliable rate estimates.
+// IMPLEMENTATION DEFAULT: 100. Requires product/data-science confirmation.
+const COHORT_MIN_N = 100
+
 console.log('\n── cohort-retention.json ──')
 const retention = loadJson<Record<string, unknown>>('cohort-retention.json')
 if (retention && Array.isArray((retention as Record<string, unknown[]>).cohorts)) {
   const cohorts = (retention as { cohorts: Array<Record<string, unknown>> }).cohorts
+  let smallCohortCount = 0
   for (const cohort of cohorts) {
+    const n = cohort.startSize as number
+    if (typeof n !== 'number' || n < 0)
+      err(`cohort ${cohort.cohortLabel}: startSize must be a non-negative number, got: ${n}`)
+    else if (n < COHORT_MIN_N) {
+      warn(`cohort ${cohort.cohortLabel}: startSize=${n} < COHORT_MIN_N=${COHORT_MIN_N} — retention rates are statistically unreliable`)
+      smallCohortCount++
+    }
     for (const week of ['w1', 'w2', 'w4', 'w8', 'w12']) {
       const v = cohort[week]
       if (v !== null && !isRate(v))
         err(`cohort ${cohort.cohortLabel}: ${week} must be null or [0,1], got: ${v}`)
+      // Catch the missing→zero failure mode: 0% retention for tiny cohorts is suspicious
+      if (v === 0 && typeof n === 'number' && n < COHORT_MIN_N)
+        warn(`cohort ${cohort.cohortLabel} ${week}: value=0 with N=${n} — verify this is genuine 0% and not missing data coerced to zero`)
     }
   }
-  ok(`cohort retention validated (${cohorts.length} cohorts)`)
+  ok(`cohort retention validated (${cohorts.length} cohorts, ${smallCohortCount} below min-N threshold)`)
 }
 
 // ─── Depth buckets ────────────────────────────────────────────────────────────
@@ -244,6 +259,81 @@ if (perf && Array.isArray((perf as Record<string, unknown[]>).types)) {
       err(`activity type ${t.key}: completionRate must be in [0,1], got: ${t.completionRate}`)
   }
   ok(`activity performance validated (${types.length} types)`)
+}
+
+// ─── Activation null fields ───────────────────────────────────────────────────
+
+console.log('\n── activation.json (null field audit) ──')
+const activation = loadJson<Record<string, unknown>>('activation.json')
+if (activation) {
+  // joinFlowCompletionRate and medianDaysToFirstParticipation are legitimately null when the
+  // underlying data source is not yet available. Validate that null is explicit — not 0.
+  const jfcr = activation.joinFlowCompletionRate
+  if (jfcr === 0)
+    warn('activation.joinFlowCompletionRate is 0 — verify this is genuine 0%, not missing data coerced to zero')
+  else if (jfcr === null)
+    warn('activation.joinFlowCompletionRate is null (unavailable) — UI should render "—", not 0%')
+  else if (typeof jfcr === 'number' && isRate(jfcr))
+    ok(`joinFlowCompletionRate = ${(jfcr * 100).toFixed(1)}%`)
+  else
+    err(`joinFlowCompletionRate must be a rate [0,1] or null, got: ${jfcr}`)
+
+  const mdtfp = activation.medianDaysToFirstParticipation
+  if (mdtfp === null)
+    warn('activation.medianDaysToFirstParticipation is null (unavailable) — UI should render "—", not 0')
+  else if (typeof mdtfp === 'number' && mdtfp >= 0)
+    ok(`medianDaysToFirstParticipation = ${mdtfp}d`)
+  else
+    err(`medianDaysToFirstParticipation must be a non-negative number or null, got: ${mdtfp}`)
+}
+
+// ─── Supply history ───────────────────────────────────────────────────────────
+
+console.log('\n── activity-supply.json (history audit) ──')
+const supplyForValidation = loadJson<Record<string, unknown>>('activity-supply.json')
+if (supplyForValidation) {
+  const hist = supplyForValidation.history as unknown[]
+  if (!Array.isArray(hist))
+    err('activity-supply.history must be an array')
+  else if (hist.length === 0)
+    warn('activity-supply.history is empty — chart will show "Historical data not yet available". This is expected when tracking has just begun.')
+  else if (hist.length === 1)
+    warn('activity-supply.history has only 1 point — chart requires ≥2 points to render')
+  else
+    ok(`activity-supply.history has ${hist.length} data points`)
+}
+
+// ─── NaN / Infinity guard ─────────────────────────────────────────────────────
+
+console.log('\n── NaN / Infinity audit ──')
+function hasNaNOrInfinity(obj: unknown, path = ''): string[] {
+  const issues: string[] = []
+  if (typeof obj === 'number') {
+    if (!isFinite(obj) || isNaN(obj)) issues.push(`${path} = ${obj}`)
+  } else if (Array.isArray(obj)) {
+    obj.forEach((v, i) => issues.push(...hasNaNOrInfinity(v, `${path}[${i}]`)))
+  } else if (obj !== null && typeof obj === 'object') {
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>))
+      issues.push(...hasNaNOrInfinity(v, path ? `${path}.${k}` : k))
+  }
+  return issues
+}
+
+const dataFiles = [
+  ['p0-metrics.json', p0],
+  ['activation.json', activation],
+  ['cohort-retention.json', retention],
+  ['activity-supply.json', supplyForValidation],
+] as const
+
+for (const [fname, data] of dataFiles) {
+  if (!data) continue
+  const badPaths = hasNaNOrInfinity(data)
+  if (badPaths.length > 0) {
+    for (const p of badPaths) err(`${fname}: NaN or Infinity at ${p}`)
+  } else {
+    ok(`${fname}: no NaN/Infinity values`)
+  }
 }
 
 // ─── Summary ──────────────────────────────────────────────────────────────────

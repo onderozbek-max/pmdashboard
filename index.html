@@ -622,6 +622,8 @@ const fmt = {
   pct0: v => v == null ? '—' : p0Fmt.format(v),
   d: (v,p=1) => v == null ? '—' : p===2 ? new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(v) : dFmt.format(v),
   chgPct: v => `${v>=0?'+':'−'}${pFmt.format(Math.abs(v))}`,
+  // For rate metrics: show absolute pp change (e.g. +24.7pp) rather than relative % change
+  chgPp: v => v == null ? '—' : `${v>=0?'+':'−'}${dFmt.format(Math.abs(v*100))}pp`,
   date: s => { const d = new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) },
   month: s => { if(/^\d{4}-\d{2}$/.test(s)){const[y,m]=s.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'})} return s },
   rel: s => { const d=new Date(s), h=(Date.now()-d)/3600000; if(h<1)return'less than an hour ago'; if(h<24)return`${Math.floor(h)}h ago`; return `${Math.floor(h/24)}d ago` },
@@ -705,8 +707,8 @@ function generateInsights(data,max=3) {
       body:`Share of new members completing their first activity within 14 days moved from ${fmt.pct(ar.prior)} to ${fmt.pct(ar.current)}.`,
       note:ar.change<0?'Review join flow completion and onboarding steps — drop-offs at either stage reduce activation.':null,
       obs:true,score:da.size==='large'?82:58,view:'members'})}
-  // Join flow
-  if(activation?.joinFlowCompletionRate<.70){
+  // Join flow — null means data unavailable; never treat null as 0%
+  if(activation?.joinFlowCompletionRate != null && activation.joinFlowCompletionRate<.70){
     cands.push({id:'joinflow',sev:activation.joinFlowCompletionRate<.55?'critical':'caution',
       title:`Join Flow Completion at ${fmt.pct(activation.joinFlowCompletionRate)} — top-of-funnel drop-off`,
       body:`${fmt.pct(1-activation.joinFlowCompletionRate)} of members who started the join flow did not complete it.`,
@@ -790,7 +792,7 @@ function generateBrief(data) {
   const rpt = p0.repeatParticipationRate
   const he = p0.highlyEngagedMembers
   if (act.current < 0.45) {
-    bullets.push({text: `Activation is the primary growth constraint: only ${fmt.pct(act.current)} of new members complete their first survey within 14 days — below the 45% threshold where compounding effects kick in.`, cls: 'crit'})
+    bullets.push({text: `Activation is a key growth constraint: only ${fmt.pct(act.current)} of new members complete their first survey within 14 days — below the configured 45% operating threshold.`, cls: 'crit'})
   } else {
     bullets.push({text: `${fmt.pct(act.current)} of new members activate within 14 days; ${fmt.pct(rpt.current)} of MAU return for a second activity. ${fmt.c(he.current)} members are highly engaged (${fmt.pct(he.current/Math.max(mau.current,1))} of MAU).`, cls: ''})
   }
@@ -829,6 +831,8 @@ function sparkline(vals, w=72, h=28, color='var(--blue)', target) {
 function lineChart({series, target, annotations=[], height=220, title, unit='count'}) {
   const PAD={top:20,right:24,bottom:48,left:56}
   const allDates=[...new Set(series.flatMap(s=>s.data.map(p=>p.date)))].sort()
+  // Guard: fewer than 2 points → cannot render a meaningful chart (also avoids NaN from division by zero)
+  if(allDates.length < 2) return `<div style="padding:2rem;text-align:center;color:var(--text-3);font-size:.8125rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-inset)">Historical data not yet available — tracking began ${allDates.length===1?fmt.month(allDates[0])+'.':' recently.'}  Check back when multiple periods have been captured.</div>`
   const allVals=series.flatMap(s=>s.data.map(p=>p.value))
   if(target)allVals.push(target.value)
   const vMin=Math.min(...allVals), vMax=Math.max(...allVals), vPad=(vMax-vMin)*.12||vMax*.1
@@ -948,7 +952,8 @@ function renderNav(currentRoute, onNavigate, theme, onThemeToggle) {
 // ─── Metric card HTML ─────────────────────────────────────────
 function metricCardHTML({def, snap, target, denomValue, variant='primary', navView}) {
   const valStr = def.unit==='pct'||def.unit==='rate' ? fmt.pct(snap.current) : def.unit==='number' ? fmt.d(snap.current) : fmt.n(snap.current)
-  const chgStr = fmt.chgPct(snap.changePct)
+  // Rates use percentage-point change (e.g. +24.7pp); counts use relative % change
+  const chgStr = (def.unit==='pct'||def.unit==='rate') ? fmt.chgPp(snap.change) : fmt.chgPct(snap.changePct)
   const dir = snap.direction === def.positiveDir ? 'pos' : snap.direction==='flat' ? 'neu' : 'neg'
   const dirIcon = snap.direction==='up'?'▲':snap.direction==='down'?'▼':'—'
   const sparkVals = snap.history.map(h=>h.value)
@@ -1159,17 +1164,25 @@ function renderMembers(data, activeTab='journey') {
       ${stages.map((s,i)=>{
         const prev=stages[i-1]; const cv=prev?s.count/prev.count:1; const ct=s.count/top
         const warn=i>0&&cv<.8
-        return `${i>0?`<div class="journey-connector${warn?' warn':''}">${fmt.pct(cv)} retained</div>`:''}
+        const isHE = s.stage==='Highly Engaged'
+        // Visually separate the rolling-window HE metric from the cumulative lifetime funnel
+        const divider = isHE ? `<div style="margin:.75rem 0;display:flex;align-items:center;gap:.75rem">
+          <div style="flex:1;height:1px;background:var(--border-md)"></div>
+          <span style="font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3)">Current engagement (rolling 30d)</span>
+          <div style="flex:1;height:1px;background:var(--border-md)"></div>
+        </div>` : ''
+        return `${divider}${i>0?`<div class="journey-connector${warn&&!isHE?' warn':''}">${isHE?'':'→ '}${isHE?'':fmt.pct(cv)+' retained'}</div>`:''}
         <div class="journey-card">
           <div class="jc-meta">
             <span class="jc-label" ${STAGE_TOOLTIPS[s.stage]?`data-tip="${STAGE_TOOLTIPS[s.stage]}"`:''}>${s.stage}</span>
             <span class="jc-count tabular">${fmt.n(s.count)}</span>
-            ${i>0?`<span class="jc-pct">${fmt.pct(ct)} of total</span>`:''}
+            ${i>0&&!isHE?`<span class="jc-pct">${fmt.pct(ct)} of total joined</span>`:''}
+            ${isHE?`<span class="jc-pct">${fmt.pct(s.count/Math.max(stages.find(st=>st.stage==='Participated')?.count||1,1))} of Participated (rolling)</span>`:''}
           </div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${ct*100}%;background:${i===0?'var(--blue)':i===stages.length-1?'var(--emerald)':'var(--violet)'}"></div></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${ct*100}%;background:${i===0?'var(--blue)':isHE?'var(--emerald)':'var(--violet)'}"></div></div>
         </div>`}).join('')}
     </div>
-    <p class="chart-caption"><strong>Joined → Highly Engaged</strong> is the lifetime activation funnel. Only "Highly Engaged" uses a rolling 30-day window — all other stages are cumulative lifetime milestones. Hover stage labels for exact definitions.</p>`})() : `<div class="section-error">Lifecycle data unavailable</div>`
+    <p class="chart-caption" style="margin-top:.75rem"><strong>Joined → Repeated</strong> are cumulative lifetime milestones (all-time counts). <strong>Highly Engaged</strong> is a current-state metric: members with ≥5 non-onboarding activities in the last 30 days. These populations use different windows and should not be read as a single sequential funnel. Hover stage labels for exact definitions.</p>`})() : `<div class="section-error">Lifecycle data unavailable</div>`
 
   // Activation
   const activationHtml = activation ? `
@@ -1204,10 +1217,14 @@ function renderMembers(data, activeTab='journey') {
 
   // Retention heatmap
   const retentionHtml = retention ? (() => {
+    // Minimum cohort size to display with full visual weight.
+    // Cohorts smaller than this threshold are flagged — their rates are statistically unreliable.
+    // IMPLEMENTATION DEFAULT: N=100. Requires product/data-science confirmation.
+    const COHORT_MIN_N = 100
     const cohorts = retention.cohorts.slice(-8)
     const weeks = ['w1','w2','w4','w8','w12']
     const wLabels = ['W1 (7d)','W2 (14d)','W4 (30d)','W8 (56d)','W12 (84d)']
-    const cl = (v) => v===null?'transparent':`rgba(59,130,246,${.1+v*.85})`
+    const cl = (v, small) => { if(small) return 'var(--bg-inset)'; return v===null?'transparent':`rgba(59,130,246,${.1+v*.85})` }
     const tc = (v) => v>0.5?'#fff':'var(--text)'
     return `<div style="display:flex;gap:1rem;margin-bottom:1rem">
         <div class="act-stat"><div class="as-label">Median W2 Retention</div><div class="as-value">${fmt.pct(retention.medianW2Retention)}</div></div>
@@ -1218,12 +1235,12 @@ function renderMembers(data, activeTab='journey') {
           <thead><tr><th class="hm-cohort">Cohort</th><th class="hm-size" style="text-align:right">Size</th>
             ${wLabels.map(w=>`<th style="width:72px;text-align:center">${w}</th>`).join('')}
           </tr></thead>
-          <tbody>${cohorts.map(c=>`<tr>
-            <th scope="row" class="hm-cohort">${fmt.month(c.cohortLabel)}</th>
-            <td class="hm-size">${fmt.n(c.startSize)}</td>
-            ${weeks.map((w,wi)=>{const v=c[w]; return `<td class="hm-cell" style="background:${cl(v)};color:${v!==null?tc(v):'var(--text-3)'}"
-              aria-label="${v!==null?fmt.pct(v):'N/A'}">${v!==null?fmt.pct(v):'—'}</td>`}).join('')}
-          </tr>`).join('')}</tbody>
+          <tbody>${cohorts.map(c=>{const small=c.startSize<COHORT_MIN_N; return`<tr${small?' title="Cohort too small for reliable rate estimates (N<100)"':''}>
+            <th scope="row" class="hm-cohort">${fmt.month(c.cohortLabel)}${small?` <span style="font-size:10px;color:var(--amber);font-weight:600" title="N=${c.startSize} — insufficient sample">⚠</span>`:''}</th>
+            <td class="hm-size" style="${small?'color:var(--amber)':''}">${fmt.n(c.startSize)}${small?' *':''}</td>
+            ${weeks.map((w,wi)=>{const v=c[w]; return `<td class="hm-cell" style="background:${cl(v,small)};color:${small?'var(--text-3)':v!==null?tc(v):'var(--text-3)'}"
+              aria-label="${small?'Insufficient sample':v!==null?fmt.pct(v):'N/A'}">${small?'*':v!==null?fmt.pct(v):'—'}</td>`}).join('')}
+          </tr>`}).join('')}</tbody>
         </table>
       </div>
       <div class="heatmap-legend" style="margin-top:.75rem">
@@ -1232,14 +1249,15 @@ function renderMembers(data, activeTab='journey') {
         <span>Higher retention</span>
         <span style="margin-left:auto;font-size:.6875rem;color:var(--text-3)">— = window not yet closed</span>
       </div>
-      <p class="chart-caption"><strong>Retention</strong> = share of a join-month cohort who completed ≥1 non-onboarding activity within N days of joining. W1 = within 7 days, W4 ≈ within 30 days. Medians exclude cohorts whose window hasn't elapsed yet. Day-0 completions (auto-assigned onboarding) are excluded.</p>`})() : `<div class="section-error">Retention data unavailable</div>`
+      <p class="chart-caption"><strong>Retention</strong> = share of a join-month cohort who completed ≥1 non-onboarding activity within N days of joining. W1 = within 7 days, W4 ≈ within 30 days. Medians exclude cohorts whose window hasn't elapsed yet. Day-0 completions (auto-assigned onboarding) are excluded.</p>
+      <p class="chart-caption" style="margin-top:.375rem">⚠ Cohorts marked with * have fewer than 100 members — rates are statistically unreliable and should not be used for product decisions. Minimum-N threshold (100) is an implementation default requiring data-science confirmation.</p>`})() : `<div class="section-error">Retention data unavailable</div>`
 
   // Depth
   const depthHtml = depth ? (() => {
     const maxC = Math.max(...depth.buckets.map(b=>b.count))
     return `<div style="display:flex;gap:1rem;margin-bottom:1rem">
         <div class="act-stat"><div class="as-label">Avg Activities / Active Member</div><div class="as-value tabular">${fmt.d(depth.activitiesPerActiveMember)}</div></div>
-        <div class="act-stat"><div class="as-label">Highly Engaged (5+)</div><div class="as-value tabular">${fmt.pct(depth.buckets.filter(b=>b.isHighlyEngaged).reduce((s,b)=>s+b.shareOfActive,0))} of MAU</div></div>
+        <div class="act-stat"><div class="as-label">Highly Engaged (5+)</div><div class="as-value tabular">${fmt.pct(depth.buckets.filter(b=>b.isHighlyEngaged).reduce((s,b)=>s+b.shareOfActive,0))} of active (depth)</div></div>
       </div>
       <table class="sr-only" aria-label="Participation depth distribution"><thead><tr><th>Bucket</th><th>Members</th><th>Share</th></tr></thead><tbody>
         ${depth.buckets.map(b=>`<tr><td>${b.label}</td><td>${fmt.n(b.count)}</td><td>${fmt.pct(b.shareOfActive)}</td></tr>`).join('')}
@@ -1252,7 +1270,8 @@ function renderMembers(data, activeTab='journey') {
           ${b.isHighlyEngaged?'<div class="db-he-tag">Highly Engaged</div>':''}
         </div>`).join('')}
       </div>
-      <p class="chart-caption"><strong>Highly Engaged</strong> threshold = 5+ activities/month (shown in green). Distribution counts non-onboarding activities in the last 30 days. Goal: shift members rightward — more members in the 5–9 and 10+ buckets.</p>`})() : `<div class="section-error">Depth data unavailable</div>`
+      <p class="chart-caption"><strong>Highly Engaged</strong> threshold = 5+ activities/month (shown in green). Distribution counts non-onboarding activities in the last 30 days. Goal: shift members rightward — more members in the 5–9 and 10+ buckets.</p>
+      <p class="chart-caption" style="margin-top:.375rem"><strong>Note:</strong> "% of active (depth)" uses the depth snapshot population, which may differ from the P0 MAU count due to different query windows or population definitions. <em>Requires data confirmation to reconcile.</em></p>`})() : `<div class="section-error">Depth data unavailable</div>`
 
   const tabs = [{id:'journey',label:'Member Journey'},{id:'activation',label:'Activation'},{id:'retention',label:'Retention'},{id:'depth',label:'Participation Depth'}]
   const content = {journey:journeyHtml, activation:activationHtml, retention:retentionHtml, depth:depthHtml}
@@ -1440,6 +1459,8 @@ window.addEventListener('hashchange', () => {
 })
 
 function render() {
+  // Always re-render nav so active state reflects the current route
+  renderNav(_route, navigate, _theme, toggleTheme)
   if(!_data){document.getElementById('app-view').innerHTML='<div class="page"><div class="skeleton" style="height:200px;margin-top:2rem;border-radius:12px"></div></div>'; return}
   const view = document.getElementById('app-view')
   let html = ''
